@@ -2,7 +2,7 @@
 
 std::pair<std::vector<sf::RectangleShape>, std::vector<sf::Text>> drawMenu(sf::RenderWindow &window, sf::Font &font) {
 
-    int xpos = wx/2;
+    int xpos = wx / 2;
 
     auto button1Text = sf::Text{"New game", font};
     button1Text.setCharacterSize(characterSize);
@@ -99,12 +99,12 @@ std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Fo
     auto usernameGraphic = sf::Text(username, font);
     usernameGraphic.setCharacterSize(characterSize);
     usernameGraphic.setFillColor(idleColor);
-    usernameGraphic.setPosition(wx/2 - 0.04*wx - 28 * username.size(), wy/2);
+    usernameGraphic.setPosition(wx / 2 - usernameGraphic.getLocalBounds().width/2, wy / 2);
 
     auto staticText = sf::Text("Enter username", font);
     staticText.setCharacterSize(characterSize);
     staticText.setFillColor(idleColor);
-    staticText.setPosition(wx/4 - 0.04*wx, 20);
+    staticText.setPosition(wx / 2 - staticText.getLocalBounds().width/2, 20);
 
     window.draw(usernameGraphic);
     window.draw(staticText);
@@ -112,18 +112,13 @@ std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Fo
     return std::pair{staticText, usernameGraphic};
 }
 
-void drawPlayfield (sf::RenderWindow &window, std::vector<std::pair<std::string,sf::Text>> words, int const &speed){
+void drawPlayfield(sf::RenderWindow &window, std::vector<std::pair<std::string, sf::Text>> &words, int const &speed) {
     int i = 0;
 
     //move and draw
-    while (i<words.size()){
-        if (words[i].second.getPosition().x!=0) {
-            words[i].second.move(speed, 0);
-        }else{
-            words[i].second.setPosition(speed, 0);
-        }
+    while (i < words.size()) {
+        words[i].second.move( speed, 0);
         window.draw(words[i].second);
         i++;
     }
-
 }

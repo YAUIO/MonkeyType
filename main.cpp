@@ -85,7 +85,7 @@ auto main() -> int {
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
                     pos.push_back(gameWords[gameWords.size()-1].second.getPosition());
                 }
-                drawPlayfield(window,gameWords, timeElapsed*4);
+                drawPlayfield(window,gameWords, timeElapsed);
             }
 
         }

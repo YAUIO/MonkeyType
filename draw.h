@@ -2,6 +2,8 @@
 #include "const.h"
 #include <thread>
 #include <fstream>
+#include <fmt/core.h>
+#include <thread>
 
 std::pair<std::vector<sf::RectangleShape>, std::vector<sf::Text>> drawMenu(sf::RenderWindow &window, sf::Font &font);
 
@@ -10,4 +12,4 @@ drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboar
 
 std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Font &font, std::string &username);
 
-void drawPlayfield (sf::RenderWindow &window, std::vector<std::pair<std::string,sf::Text>> words, int const &speed);
+void drawPlayfield (sf::RenderWindow &window, std::vector<std::pair<std::string,sf::Text>> &words, int const &speed);
