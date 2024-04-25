@@ -1,6 +1,5 @@
 #include "setget.h"
 
-
 template <typename T>
 void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
     if (i == gameWords.size()-1){

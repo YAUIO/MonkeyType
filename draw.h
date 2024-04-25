@@ -6,7 +6,6 @@
 #include <fmt/core.h>
 #include <thread>
 
-
 std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font);
 
 std::vector<std::vector<sf::Text>>

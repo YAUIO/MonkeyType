@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 
+
 inline std::vector<int> readConfig() {
     namespace fs = std::filesystem;
     auto cfgpath = fs::path("reqfiles/Config.txt");

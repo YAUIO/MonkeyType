@@ -3,6 +3,7 @@
 #include <thread>
 #include <deque>
 
+
 template <typename T>
 void deleteIndexDeque(std::deque<T> & gameWords, const int & i);
 
