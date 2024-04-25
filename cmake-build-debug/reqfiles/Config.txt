@@ -1,0 +1,6 @@
+window_x = 1280;
+window_y = 720;
+colors = 0;
+wordsMaxLength = 6;
+speed = 1;
+characterSize = 120;

@@ -1,7 +1,10 @@
 #include <fmt/core.h>
 #include <SFML/Graphics.hpp>
-#include <thread>
-#include <fstream>
+#include <vector>
+#include <filesystem>
+#include <string>
+#include <cmath>
+#include <deque>
 #include "draw.h"
 #include "parse.h"
 #include "setget.h"
@@ -20,6 +23,7 @@ auto main() -> int {
     std::string menuState = "no";
     std::string gameState = "no";
     std::string username = "Guest";
+    std::string wordTyp;
     bool menu = true;
     bool isLbParsed = true;
     bool isGuest = true;
@@ -27,13 +31,14 @@ auto main() -> int {
     long long timeElapsed = 0;
     long long lastWordSpawned = 0;
     long long timeNow = 0;
+    int wordsLost = 0;
     auto pos = std::vector<sf::Vector2f>();
     auto lb = parseLeaderboard();
     auto start = std::chrono::steady_clock::now();
-    auto gameWords = std::vector<std::pair<std::string,sf::Text>>();
+    auto gameWords = std::deque<sf::Text>();
 
     while (window.isOpen()) {
-        window.clear(sf::Color::Black);
+        window.clear(bgColor);
 
         if (menu) {
             if (menuState == "no") {
@@ -47,10 +52,12 @@ auto main() -> int {
                 isLbParsed = false;
                 isGuest = true;
                 timerStarted = false;
+                wordsLost = 0;
                 timeElapsed = 0;
                 pos.clear();
                 gameWords.clear();
                 gameState = "username";
+                wordTyp = "";
             } else if (menuState == "Settings") {
 
             } else if (menuState == "Leaderboard") {
@@ -69,10 +76,14 @@ auto main() -> int {
 
             if (gameState == "username") {
                 auto usernameGraphic = drawEnterUsername(window, font, username);
-            }else if (gameState == "game"){
-                if (!timerStarted){
+            } else if (gameState == "game") {
+                if (!timerStarted) {
                     start = std::chrono::steady_clock::now();
                     timerStarted = true;
+                }
+
+                if (wordsLost >= 10) {
+                    gameState = "failed";
                 }
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -80,12 +91,18 @@ auto main() -> int {
                 timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
 
-                if((timeNow - lastWordSpawned) / convToSec > 6){
-                    gameWords.push_back(interpWord(generateWord(), font, gameWords));
+                if ((timeNow - lastWordSpawned) / convToSec > 4) {
+                    interpWord(generateWord(), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
-                    pos.push_back(gameWords[gameWords.size()-1].second.getPosition());
+                    pos.push_back(gameWords[gameWords.size() - 1].getPosition());
                 }
-                drawPlayfield(window,gameWords, timeElapsed);
+
+                auto speed = std::pow(2, timeElapsed / 10000) * speedMultiplier;
+
+                wordsLost += drawPlayfield(window, gameWords, speed);
+                drawGameUI(window, font, wordTyp, timeElapsed, wordsLost);
+            } else if (gameState == "pause") {
+                //drawPauseMenu
             }
 
         }
@@ -97,18 +114,22 @@ auto main() -> int {
 
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Escape) {
-                    menu = true;
-                    menuState = "no";
-                    gameState = "no";
+                    if (gameState == "game") {
+                        gameState = "pause";
+                    }else{
+                        menu = true;
+                        menuState = "no";
+                        gameState = "no";
+                    }
                 }
             }
 
             if (gameState != "no") {
                 if (gameState == "username") {
-                    if(event.type == sf::Event::KeyPressed){
+                    if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::Enter) {
                             gameState = "game";
-                            if (username.empty()){
+                            if (username.empty()) {
                                 username = "Guest";
                             }
                         }
@@ -116,7 +137,7 @@ auto main() -> int {
                         if (event.key.code == sf::Keyboard::BackSpace) {
                             username = username.substr(0, username.size() - 1);
                         }
-                        if (username.length()<10) {
+                        if (username.length() < 10) {
                             if (event.key.code >= sf::Keyboard::Key::A && event.key.code <= sf::Keyboard::Key::Z) {
                                 if (isGuest) {
                                     username = "";
@@ -130,8 +151,22 @@ auto main() -> int {
                             }
                         }
                     }
-                }else if (gameState == "game") {
+                } else if (gameState == "game") {
+                    if (event.type == sf::Event::KeyPressed) {
+                        if (event.key.code == sf::Keyboard::Enter) {
+                            checkEntered(wordTyp, gameWords);
+                        }
 
+                        if (event.key.code == sf::Keyboard::BackSpace) {
+                            wordTyp = wordTyp.substr(0, wordTyp.size() - 1);
+                        }
+
+
+                        if (event.key.code >= sf::Keyboard::Key::A && event.key.code <= sf::Keyboard::Key::Z) {
+                            wordTyp += (char) alphabet[event.key.code];
+                        }
+
+                    }
                 }
             }
         }

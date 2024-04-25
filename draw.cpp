@@ -1,51 +1,34 @@
+#include <deque>
 #include "draw.h"
 
-std::pair<std::vector<sf::RectangleShape>, std::vector<sf::Text>> drawMenu(sf::RenderWindow &window, sf::Font &font) {
+std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font) {
 
     int xpos = wx / 2;
 
     auto button1Text = sf::Text{"New game", font};
     button1Text.setCharacterSize(characterSize);
-    button1Text.setPosition(xpos - 727 / 2, 20);
+    button1Text.setPosition(xpos - button1Text.getLocalBounds().width/2, 20);
     button1Text.setFillColor(idleColor);
     auto button2Text = sf::Text{"Settings", font};
     button2Text.setCharacterSize(characterSize);
-    button2Text.setPosition(xpos - 628 / 2, 140);
+    button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 140);
     button2Text.setFillColor(idleColor);
     auto button3Text = sf::Text{"Leaderboard", font};
     button3Text.setCharacterSize(characterSize);
-    button3Text.setPosition(xpos - 984 / 2, 260);
+    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
     button3Text.setFillColor(idleColor);
     auto button4Text = sf::Text{"Exit", font};
     button4Text.setCharacterSize(characterSize);
-    button4Text.setPosition(xpos - 282 / 2, 380);
+    button4Text.setPosition(xpos - button4Text.getLocalBounds().width/2, 380);
     button4Text.setFillColor(idleColor);
     auto text = std::vector<sf::Text>{button1Text, button2Text, button3Text, button4Text};
 
-    auto button1 = sf::RectangleShape(sf::Vector2f(727, 100));
-    button1.setPosition(xpos - 718 / 2, 42);
-    button1.setFillColor(sf::Color::Cyan);
-    auto button2 = sf::RectangleShape(sf::Vector2f(628, 100));
-    button2.setPosition(xpos - 628 / 2, 162);
-    button2.setFillColor(sf::Color::Cyan);
-    auto button3 = sf::RectangleShape(sf::Vector2f(984, 100));
-    button3.setPosition(xpos - 984 / 2, 282);
-    button3.setFillColor(sf::Color::Cyan);
-    auto button4 = sf::RectangleShape(sf::Vector2f(282, 100));
-    button4.setPosition(xpos - 284 / 2, 402);
-    button4.setFillColor(sf::Color::Cyan);
-    auto hitboxes = std::vector<sf::RectangleShape>{button1, button2, button3, button4};
-
-    /* window.draw(button1);
-     window.draw(button2);
-     window.draw(button3);
-     window.draw(button4);*/
     window.draw(button1Text);
     window.draw(button2Text);
     window.draw(button3Text);
     window.draw(button4Text);
 
-    return std::pair{hitboxes, text};
+    return text;
 }
 
 std::vector<std::vector<sf::Text>>
@@ -112,13 +95,44 @@ std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Fo
     return std::pair{staticText, usernameGraphic};
 }
 
-void drawPlayfield(sf::RenderWindow &window, std::vector<std::pair<std::string, sf::Text>> &words, int const &speed) {
+int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int const &speed) {
     int i = 0;
+    int lostWords = 0;
 
     //move and draw
     while (i < words.size()) {
-        words[i].second.move( speed, 0);
-        window.draw(words[i].second);
+        if(speed+words[i].getPosition().x+words[i].getGlobalBounds().width>wx){
+            deleteIndexDeque(words,i);
+            lostWords++;
+        }
+        words[i].move( speed, 0);
+        window.draw(words[i]);
         i++;
     }
+    return lostWords;
+}
+
+void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost){
+    auto uiBase = sf::RectangleShape(sf::Vector2f(wx,240));
+    uiBase.setPosition(0,wy-240);
+    uiBase.setFillColor(selectColor);
+
+    auto wordTypGraphic = sf::Text(wordTyp,font,characterSize/2);
+    wordTypGraphic.setPosition(20,uiBase.getPosition().y+20);
+    wordTypGraphic.setFillColor(idleColor);
+
+    auto underscore = sf::Text("_",font,characterSize/2);
+    underscore.setFillColor(idleColor);
+    underscore.setPosition(wordTypGraphic.getPosition().x+wordTypGraphic.getGlobalBounds().width+wordTypGraphic.getLetterSpacing(),wordTypGraphic.getPosition().y);
+
+    auto wordsLostGraph = sf::Text("Fails: " + std::to_string(wordsLost).append("/10"),font,characterSize/2);
+    wordsLostGraph.setFillColor(idleColor);
+    wordsLostGraph.setPosition(20,wy-20-wordsLostGraph.getGlobalBounds().height);
+
+    window.draw(uiBase);
+    if(timeElapsed%2>=1){
+        window.draw(underscore);
+    }
+    window.draw(wordsLostGraph);
+    window.draw(wordTypGraphic);
 }

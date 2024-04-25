@@ -53,7 +53,12 @@ std::vector<leaderboardEntry> parseLeaderboard() {
 }
 
 std::string generateWord (){
-    int length = maxLength + rand()%4;
+    int length = maxLength;
+
+    if(maxLength>4){
+        length -= rand()%4;
+    }
+
     int i = 0;
     auto word = std::string();
     while(i<length){
@@ -63,7 +68,7 @@ std::string generateWord (){
     return word;
 }
 
-std::pair<std::string,sf::Text> interpWord (std::string const& word, sf::Font const& font, std::vector<std::pair<std::string,sf::Text>> &vec){
+void interpWord (std::string const& word, sf::Font const& font, std::deque<sf::Text> &vec){
     auto graphWord = sf::Text(word,font);
     float ry;
     int i = 0;
@@ -72,17 +77,14 @@ std::pair<std::string,sf::Text> interpWord (std::string const& word, sf::Font co
     graphWord.setCharacterSize(characterSize/2);
     if(!vec.empty()) {
         while (!nUniq) {
-            ry = rand() % wy;
+            ry = rand() % static_cast<int>(wy-(240+graphWord.getGlobalBounds().height));
             i = 0;
             while (i < vec.size()) {
-                if ( vec[i].second.getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
-                    //fmt::println("{} < {}",vec[i].second.getPosition().y + (float)vec[i].second.getCharacterSize() + 20, ry);
+                if ( vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
                     i++;
-                } else if (vec[i].second.getPosition().y > ry + graphWord.getLocalBounds().height + 20.f){
-                    //fmt::println("{} > {}",vec[i].second.getPosition().y, ry + (float)graphWord.getCharacterSize() + 20);
+                } else if (vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f){
                     i++;
-                } else if (vec[i].second.getPosition().x > graphWord.getLocalBounds().width) {
-                    //fmt::println("{} > {}", vec[i].second.getPosition().x, graphWord.getCharacterSize() * word.size());
+                } else if (vec[i].getPosition().x > graphWord.getLocalBounds().width) {
                     i++;
                 } else {
                     break;
@@ -98,5 +100,5 @@ std::pair<std::string,sf::Text> interpWord (std::string const& word, sf::Font co
         ry = rand() % wy;
     }
     graphWord.setPosition(-graphWord.getLocalBounds().width,ry);
-    return std::pair{word,graphWord};
+    vec.push_back(graphWord);
 }

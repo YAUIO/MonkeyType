@@ -1,5 +1,34 @@
 #include "setget.h"
 
+template <typename T>
+void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
+    if (i == gameWords.size()-1){
+        gameWords.pop_back();
+    }
+    else if (i == 0){
+        gameWords.pop_front();
+    }
+    else if (i < gameWords.size() / 2) {
+        auto s = std::deque(gameWords.begin(), gameWords.begin() + i - 1);
+        int x = 0;
+        while (x <= i) {
+            gameWords.pop_front();
+            x++;
+        }
+        s.insert(s.end(), gameWords.begin(), gameWords.end());
+        gameWords = s;
+    } else if (i > gameWords.size() / 2) {
+        auto s = std::deque(gameWords.begin() + i, gameWords.end());
+        int x = 0;
+        while (x >= i) {
+            gameWords.pop_back();
+            x++;
+        }
+        s.insert(s.end(), gameWords.begin(), gameWords.end());
+        gameWords = s;
+    }
+}
+
 bool isCursorOnButton(sf::RenderWindow &window, sf::RectangleShape const &button1) {
     return (sf::Mouse::getPosition(window).x - (button1.getPosition().x) <=
             button1.getSize().x) &&
@@ -11,35 +40,45 @@ bool isCursorOnButton(sf::RenderWindow &window, sf::RectangleShape const &button
             button1.getSize().y * -1);
 }
 
+bool isCursorOnButton(sf::RenderWindow &window, sf::Text const &button1) {
+    return (sf::Mouse::getPosition(window).x - (button1.getPosition().x) <=
+            button1.getGlobalBounds().width) &&
+           (sf::Mouse::getPosition(window).x - (button1.getPosition().x + button1.getGlobalBounds().width) >=
+            button1.getGlobalBounds().width * -1) &&
+           (sf::Mouse::getPosition(window).y - (button1.getPosition().y) <=
+            button1.getGlobalBounds().height) &&
+           (sf::Mouse::getPosition(window).y - (button1.getPosition().y + button1.getGlobalBounds().height) >=
+            button1.getGlobalBounds().height * -1);
+}
+
 void setFillColorDraw(sf::RenderWindow &window, sf::Text &text, sf::Color const &color) {
     text.setFillColor(color);
     window.draw(text);
 }
 
-void setActiveTextColor(sf::RenderWindow &window,
-                        std::pair<std::vector<sf::RectangleShape>, std::vector<sf::Text>> &elements) {
+void setActiveTextColor(sf::RenderWindow &window, std::vector<sf::Text> &elements) {
     int i = 0;
-    while (i < elements.second.size()) {
-        if (isCursorOnButton(window, elements.first[i])) {
-            setFillColorDraw(window, elements.second[i], selectColor);
+    while (i < elements.size()) {
+        if (isCursorOnButton(window, elements[i])) {
+            setFillColorDraw(window, elements[i], selectColor);
         } else {
-            setFillColorDraw(window, elements.second[i], idleColor);
+            setFillColorDraw(window, elements[i], idleColor);
         }
         i++;
     }
 }
 
 std::string
-getMenuPress(sf::RenderWindow &window, std::pair<std::vector<sf::RectangleShape>, std::vector<sf::Text>> &elements) {
+getMenuPress(sf::RenderWindow &window, std::vector<sf::Text> &elements) {
     using namespace std::chrono_literals;
     std::string returnStr = "no";
     int i = 0;
-    while (i < elements.second.size()) {
-        if (isCursorOnButton(window, elements.first[i])) {
-            returnStr = elements.second[i].getString();
+    while (i < elements.size()) {
+        if (isCursorOnButton(window, elements[i])) {
+            returnStr = elements[i].getString();
             break;
         } else {
-            setFillColorDraw(window, elements.second[i], idleColor);
+            setFillColorDraw(window, elements[i], idleColor);
         }
         i++;
     }
@@ -47,10 +86,10 @@ getMenuPress(sf::RenderWindow &window, std::pair<std::vector<sf::RectangleShape>
     if (returnStr != "no") {
         auto animationR = 0;
         while (animationR < 6) {
-            setFillColorDraw(window, elements.second[i], selectColor);
+            setFillColorDraw(window, elements[i], selectColor);
             window.display();
             std::this_thread::sleep_for(40ms);
-            setFillColorDraw(window, elements.second[i], sf::Color::Yellow);
+            setFillColorDraw(window, elements[i], animColor);
             window.display();
             std::this_thread::sleep_for(40ms);
             animationR++;
@@ -80,4 +119,22 @@ void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::
         }
         i++;
     }
+}
+
+bool checkEntered(std::string &wordTyp, std::deque<sf::Text> &gameWords) {
+    int i = 0;
+    bool isEntered = false;
+    while (i < gameWords.size()) {
+        if (wordTyp == gameWords[i].getString()) {
+            wordTyp = "";
+            isEntered = true;
+            break;
+        }
+        i++;
+    }
+    if (isEntered){
+        deleteIndexDeque(gameWords,i);
+    }
+
+    return isEntered;
 }
