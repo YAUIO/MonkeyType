@@ -1,5 +1,6 @@
 #include "parse.h"
 
+
 std::vector<leaderboardEntry> parseLeaderboard() {
     namespace fs = std::filesystem;
     auto lbpath = fs::path("reqfiles/Leaderboard.txt");

@@ -1,6 +1,7 @@
 #include <deque>
 #include "draw.h"
 
+
 std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font) {
 
     int xpos = wx / 2;

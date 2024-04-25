@@ -1,5 +1,4 @@
 #pragma once
-
 #include "const.h"
 #include <thread>
 #include <deque>
