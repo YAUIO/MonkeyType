@@ -22,6 +22,7 @@ auto main() -> int {
     //vars
     std::string menuState = "no";
     std::string gameState = "no";
+    std::string pauseState = "no";
     std::string username = "Guest";
     std::string wordTyp;
     bool menu = true;
@@ -102,7 +103,28 @@ auto main() -> int {
                 wordsLost += drawPlayfield(window, gameWords, speed);
                 drawGameUI(window, font, wordTyp, timeElapsed, wordsLost);
             } else if (gameState == "pause") {
-                //drawPauseMenu
+                if (pauseState == "no") {
+                    auto posElements = drawPauseMenu(window,font);
+                    setActiveTextColor(window,posElements);
+                    if (event.type == sf::Event::MouseButtonPressed) {
+                        pauseState = getMenuPress(window,posElements);
+                    }
+
+                } else if (pauseState == "Continue") {
+                    pauseState = "no";
+                    gameState = "game";
+                }else if (pauseState == "Save") {
+                    //save
+                    gameState = "no";
+                    menu = true;
+                    menuState = "no";
+                    pauseState = "no";
+                }else if (pauseState == "Exit") {
+                    gameState = "no";
+                    menu = true;
+                    menuState = "no";
+                    pauseState = "no";
+                }
             }
 
         }

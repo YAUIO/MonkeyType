@@ -32,6 +32,31 @@ std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font) {
     return text;
 }
 
+std::vector<sf::Text> drawPauseMenu(sf::RenderWindow &window, sf::Font &font) {
+
+    int xpos = wx / 2;
+
+    auto button1Text = sf::Text{"Continue", font};
+    button1Text.setCharacterSize(characterSize);
+    button1Text.setPosition(xpos - button1Text.getLocalBounds().width/2, 20);
+    button1Text.setFillColor(idleColor);
+    auto button2Text = sf::Text{"Save", font};
+    button2Text.setCharacterSize(characterSize);
+    button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 140);
+    button2Text.setFillColor(idleColor);
+    auto button3Text = sf::Text{"Exit", font};
+    button3Text.setCharacterSize(characterSize);
+    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
+    button3Text.setFillColor(idleColor);
+    auto text = std::vector<sf::Text>{button1Text,button2Text,button3Text};
+
+    window.draw(button1Text);
+    window.draw(button2Text);
+    window.draw(button3Text);
+
+    return text;
+}
+
 std::vector<std::vector<sf::Text>>
 drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboardEntry> const &leaderboard) {
     int yOffset = 120;

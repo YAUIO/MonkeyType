@@ -8,6 +8,8 @@
 
 std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font);
 
+std::vector<sf::Text> drawPauseMenu(sf::RenderWindow &window, sf::Font &font);
+
 std::vector<std::vector<sf::Text>>
 drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboardEntry> const &leaderboard);
 
