@@ -80,6 +80,9 @@ void interpWord (std::string const& word, sf::Font const& font, std::deque<sf::T
             ry = rand() % static_cast<int>(wy-(240+graphWord.getGlobalBounds().height));
             i = 0;
             while (i < vec.size()) {
+                if(ry>wy-240) {
+                    break;
+                }
                 if ( vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
                     i++;
                 } else if (vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f){
@@ -97,7 +100,7 @@ void interpWord (std::string const& word, sf::Font const& font, std::deque<sf::T
             }
         }
     }else{
-        ry = rand() % wy;
+        ry = rand() % static_cast<int>(wy-(240+graphWord.getGlobalBounds().height));
     }
     graphWord.setPosition(-graphWord.getLocalBounds().width,ry);
     vec.push_back(graphWord);
