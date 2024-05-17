@@ -34,6 +34,7 @@ auto main() -> int {
     long long timeNow = 0;
     int wordsLost = 0;
     auto pos = std::vector<sf::Vector2f>();
+    auto csv = std::vector<std::string>();
     auto lb = parseLeaderboard();
     auto start = std::chrono::steady_clock::now();
     auto gameWords = std::deque<sf::Text>();
@@ -55,6 +56,7 @@ auto main() -> int {
                 timerStarted = false;
                 wordsLost = 0;
                 timeElapsed = 0;
+                csv = parseCSV();
                 pos.clear();
                 gameWords.clear();
                 gameState = "username";
@@ -93,7 +95,7 @@ auto main() -> int {
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
 
                 if ((timeNow - lastWordSpawned) / convToSec > 4) {
-                    interpWord(generateWord(), font, gameWords);
+                    interpWord(generateWord(csv), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
                     pos.push_back(gameWords[gameWords.size() - 1].getPosition());
                 }

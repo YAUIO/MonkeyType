@@ -21,7 +21,6 @@ std::vector<leaderboardEntry> parseLeaderboard() {
 
         leaderboard.push_back(leaderboardEntry());
         while (i < 3) {
-
             if (i != 0) {
                 startPos = endPos + 1;
             } else {
@@ -52,40 +51,62 @@ std::vector<leaderboardEntry> parseLeaderboard() {
     return leaderboard;
 }
 
-std::string generateWord (){
+std::vector<std::string> parseCSV() {
+    namespace fs = std::filesystem;
+    auto csvpath = fs::path("reqfiles/lib.csv");
+    auto csvstream = std::fstream(csvpath);
+    auto line = std::string();
+    auto arg = std::string();
+    auto csv = std::vector<std::string>();
+    int lineC = 0;
+
+    while (std::getline(csvstream, line, '\n')) {
+        if (line == "") {
+            break;
+        }
+
+        if (line.size() <= maxLength) {
+            csv.push_back(line);
+        }
+
+        lineC++;
+    }
+
+    return csv;
+}
+
+std::string generateWord(std::vector<std::string> const &csv) {
     int length = maxLength;
 
-    if(maxLength>4){
-        length -= rand()%4;
+    if (maxLength >= 6) {
+        length -= rand() % 4;
     }
 
-    int i = 0;
     auto word = std::string();
-    while(i<length){
-        word += alphabet[rand()%26];
-        i++;
-    }
+
+    word = csv[rand() % csv.size()].substr(0,word.size()-1);
+
     return word;
 }
 
-void interpWord (std::string const& word, sf::Font const& font, std::deque<sf::Text> &vec){
-    auto graphWord = sf::Text(word,font);
+void interpWord(std::string const &word, sf::Font const &font, std::deque<sf::Text> &vec) {
+    auto graphWord = sf::Text(word, font);
     float ry;
     int i = 0;
     bool nUniq = false;
     graphWord.setFillColor(idleColor);
-    graphWord.setCharacterSize(characterSize/2);
-    if(!vec.empty()) {
+    graphWord.setCharacterSize(characterSize / 2);
+    if (!vec.empty()) {
         while (!nUniq) {
-            ry = rand() % static_cast<int>(wy-(240+graphWord.getGlobalBounds().height));
+            ry = rand() % static_cast<int>(wy - (240 + graphWord.getGlobalBounds().height));
             i = 0;
             while (i < vec.size()) {
-                if(ry>wy-240) {
+                if (ry > wy - 240) {
                     break;
                 }
-                if ( vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
+                if (vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
                     i++;
-                } else if (vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f){
+                } else if (vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f) {
                     i++;
                 } else if (vec[i].getPosition().x > graphWord.getLocalBounds().width) {
                     i++;
@@ -93,15 +114,15 @@ void interpWord (std::string const& word, sf::Font const& font, std::deque<sf::T
                     break;
                 }
             }
-            if (i == vec.size()){
+            if (i == vec.size()) {
                 break;
-            }else{
+            } else {
                 nUniq = false;
             }
         }
-    }else{
-        ry = rand() % static_cast<int>(wy-(240+graphWord.getGlobalBounds().height));
+    } else {
+        ry = rand() % static_cast<int>(wy - (240 + graphWord.getGlobalBounds().height));
     }
-    graphWord.setPosition(-graphWord.getLocalBounds().width,ry);
+    graphWord.setPosition(-graphWord.getLocalBounds().width, ry);
     vec.push_back(graphWord);
 }
