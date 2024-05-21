@@ -140,3 +140,28 @@ bool checkEntered(std::string &wordTyp, std::deque<sf::Text> &gameWords) {
 
     return isEntered;
 }
+
+std::vector<std::string> toFMT(std::vector<sf::Vector2f> const& v){
+    auto sv = std::vector<std::string>();
+    for(sf::Vector2f tf : v){
+        sv.push_back(std::to_string(tf.x).append(" ").append(std::to_string(tf.y)));
+    }
+    return sv;
+}
+
+std::vector<std::string> toFMTD(std::deque<sf::Text> const& v){
+    auto vs = std::vector<std::string>();
+
+    for(sf::Text t : v){
+        vs.push_back(fmt::format("",t.getPosition()))
+    }
+}
+
+void saveGame(int & wordsLost,long long &timeElapsed,std::vector<sf::Vector2f>& pos, std::deque<sf::Text>& gameWords,std::string &wordTyp, std::string &username){
+    std::fstream save;
+    std::string dir = "reqfiles/saves/";
+    std::string saveName = username.append(std::to_string(static_cast<long long>(std::chrono::system_clock::now().time_since_epoch().count()))).append(".txt");
+    save.open(dir.append(saveName));
+
+    save.write(fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",wordsLost,timeElapsed,toFMT(pos),toFMTD(gameWords),wordTyp,username),);
+}

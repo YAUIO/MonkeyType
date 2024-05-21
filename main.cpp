@@ -87,6 +87,7 @@ auto main() -> int {
 
                 if (wordsLost >= 10) {
                     gameState = "failed";
+                    //td parsetolb
                 }
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -115,7 +116,7 @@ auto main() -> int {
                     pauseState = "no";
                     gameState = "game";
                 }else if (pauseState == "Save") {
-                    //save
+                    saveGame(wordsLost,timeElapsed,pos,gameWords,wordTyp,username);
                     gameState = "no";
                     menu = true;
                     menuState = "no";
