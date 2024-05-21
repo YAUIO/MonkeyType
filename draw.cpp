@@ -131,8 +131,10 @@ int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int co
             deleteIndexDeque(words,i);
             lostWords++;
         }
-        words[i].move( speed, 0);
-        window.draw(words[i]);
+        if(words.size()!=0){
+            words[i].move( speed, 0);
+            window.draw(words[i]);
+        }
         i++;
     }
     return lostWords;

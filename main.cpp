@@ -101,7 +101,6 @@ auto main() -> int {
                 }
 
                 auto speed = std::pow(2, timeElapsed / 10000) * speedMultiplier;
-
                 wordsLost += drawPlayfield(window, gameWords, speed);
                 drawGameUI(window, font, wordTyp, timeElapsed, wordsLost);
             } else if (gameState == "pause") {

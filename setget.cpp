@@ -1,4 +1,6 @@
 #include "setget.h"
+#include "fmt/core.h"
+#include "fmt/ranges.h"
 
 template <typename T>
 void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
