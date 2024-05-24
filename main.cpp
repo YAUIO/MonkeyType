@@ -20,6 +20,7 @@ auto main() -> int {
 
     //vars
     std::string menuState = "no";
+    std::string loadState = "no";
     std::string gameState = "no";
     std::string pauseState = "no";
     std::string username = "Guest";
@@ -61,17 +62,21 @@ auto main() -> int {
                 gameState = "username";
                 wordTyp = "";
             } else if (menuState == "Load game") {
-                /*menu = false;
-                isLbParsed = false;
-                timerStarted = false;
-                csv = parseCSV();
-                gameState = "game";
+                auto loadGameText = drawLoadGame(window, font);
+                setActiveTextColor(window, loadGameText);
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    loadState = getMenuPress(window, loadGameText);
+                }
 
-                Save loadGame = parseSave()*/
+                if (loadState != "no") {
+                    menu = false;
+                    isLbParsed = false;
+                    timerStarted = false;
+                    csv = parseCSV();
+                    gameState = "game";
 
-                auto loadGameText = drawLoadGame(window,font);
-                setActiveTextColor(window,loadGameText);
-
+                    Save loadGame = parseSave(getSavePath(loadState,loadGameText));
+                }
             } else if (menuState == "Settings") {
             } else if (menuState == "Leaderboard") {
                 if (!isLbParsed) {

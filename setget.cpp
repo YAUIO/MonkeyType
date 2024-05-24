@@ -123,6 +123,20 @@ void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::
     }
 }
 
+int getFirstDigit(std::string & s) {
+    int index = 0;
+
+    while(index<s.size()) {
+        if(std::regex_match(s.substr(0,index),std::regex(".*[0-9]"))) {
+            //fmt::println("{} {}",index,s.substr(0,index));
+            return index-1;
+        }
+        index++;
+    }
+
+    return 0;
+}
+
 bool checkEntered(std::string &wordTyp, std::deque<sf::Text> &gameWords) {
     int i = 0;
     bool isEntered = false;
@@ -167,4 +181,19 @@ void saveGame(Save & data){
     save.open(dir.append(saveName),std::ios::out);
 
     save << fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",data.wordsLost,data.timeElapsed,toFMT(data.pos),toFMTD(data.gameWords),data.wordTyp,data.username);
+}
+
+std::string getSavePath(std::string state, std::vector<sf::Text> buttons) {
+    int i = 0;
+    while (i<buttons.size()) {
+        if(buttons[i].getString()==state) {
+            break;
+        }
+        i++;
+    }
+    std::vector<std::string> paths;
+    for(const auto& entry : std::filesystem::directory_iterator("reqfiles/saves/")) {
+        paths.push_back(entry.path().filename().generic_string());
+    }
+    return "reqfiles/saves/" + paths[i];
 }

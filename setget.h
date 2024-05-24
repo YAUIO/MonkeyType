@@ -2,6 +2,7 @@
 #include "const.h"
 #include <thread>
 #include <deque>
+#include <regex>
 
 
 template <typename T>
@@ -21,3 +22,7 @@ void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::
 bool checkEntered(std::string & wordTyp, std::deque<sf::Text> & gameWords);
 
 void saveGame(Save & data);
+
+int getFirstDigit(std::string & s);
+
+std::string getSavePath(std::string state, std::vector<sf::Text> buttons);

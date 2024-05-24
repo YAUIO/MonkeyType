@@ -79,11 +79,24 @@ std::vector<std::string> parseCSV() {
     return csv;
 }
 
-Save parseSave(std::string name) {
+Save parseSave(std::string const& path) {
     auto save = Save();
 
+    std::fstream saveF;
+    std::string line;
+    saveF.open(path,std::ios::in);
 
-
+    std::getline(saveF,line);
+    save.wordsLost=std::stoi(line);
+    std::getline(saveF,line);
+    save.timeElapsed=std::stol(line);
+    std::getline(saveF,line);
+    //tovec pos
+    std::getline(saveF,line);
+    //tovec gamewords
+    std::getline(saveF,line);
+    std::getline(saveF,line);
+    save.username = line;
     return save;
 }
 std::string generateWord(std::vector<std::string> const &csv) {

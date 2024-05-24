@@ -11,13 +11,18 @@ std::vector<sf::Text> drawLoadGame(sf::RenderWindow& window, sf::Font &font) {
     }
 
     int i = 0;
+    int size = 0;
     int xpos = wx/2;
+    std::string butName;
 
     while(i<saveNames.size()) {
-        buttons.push_back(sf::Text(saveNames[i],font));
+        size = static_cast<int>(saveNames[i].size());
+        butName = saveNames[i].substr(0,size-(size-getFirstDigit(saveNames[i])));
+        butName.append(" " + std::to_string(i));
+        buttons.push_back(sf::Text(butName,font));
         buttons[i].setCharacterSize(characterSize);
         buttons[i].setPosition(xpos - buttons[i].getGlobalBounds().width/2,(i*120)+20);
-        buttons[i].setColor(idleColor);
+        buttons[i].setFillColor(idleColor);
         i++;
     }
 

@@ -7,6 +7,8 @@
 #include <thread>
 #include <deque>
 #include <fmt/ranges.h>
+#include <regex>
+#include "setget.h"
 
 std::vector<sf::Text> drawLoadGame(sf::RenderWindow &window, sf::Font &font);
 
