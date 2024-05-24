@@ -5,6 +5,10 @@
 #include <fstream>
 #include <fmt/core.h>
 #include <thread>
+#include <deque>
+#include <fmt/ranges.h>
+
+std::vector<sf::Text> drawLoadGame(sf::RenderWindow &window, sf::Font &font);
 
 std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font);
 

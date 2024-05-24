@@ -1,5 +1,9 @@
 #include "parse.h"
 
+#include <variant>
+
+#include "fmt/ranges.h"
+
 std::vector<leaderboardEntry> parseLeaderboard() {
     namespace fs = std::filesystem;
     auto lbpath = fs::path("reqfiles/Leaderboard.txt");
@@ -65,8 +69,8 @@ std::vector<std::string> parseCSV() {
             break;
         }
 
-        if (line.size() <= maxLength) {
-            csv.push_back(line);
+        if (line.size() <= maxLength && !line.empty()) {
+            csv.push_back(line.substr(0,line.size()-1));
         }
 
         lineC++;
@@ -75,6 +79,13 @@ std::vector<std::string> parseCSV() {
     return csv;
 }
 
+Save parseSave(std::string name) {
+    auto save = Save();
+
+
+
+    return save;
+}
 std::string generateWord(std::vector<std::string> const &csv) {
     int length = maxLength;
 

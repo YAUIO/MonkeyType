@@ -1,4 +1,5 @@
 #pragma once
+#include <deque>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <filesystem>
@@ -26,9 +27,11 @@ inline std::vector<int> readConfig() {
 
 inline const std::vector<int> cfg = readConfig();
 
-inline const std::vector<char> alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-                                           'p',
-                                           'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+inline const std::vector<char> alphabet = {
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    'p',
+    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+};
 
 
 const int wx = cfg[0];
@@ -50,4 +53,14 @@ public:
     std::string username;
     long wordsTyped;
     long time;
+};
+
+class Save {
+public:
+    int wordsLost;
+    long long timeElapsed;
+    std::vector<sf::Vector2f> pos;
+    std::deque<sf::Text> gameWords;
+    std::string wordTyp;
+    std::string username;
 };

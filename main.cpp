@@ -10,7 +10,6 @@
 #include "setget.h"
 
 auto main() -> int {
-
     //SFML
     auto window = sf::RenderWindow(sf::VideoMode(wx, wy), "MonkeyTyper");
     window.setFramerateLimit(240);
@@ -61,8 +60,19 @@ auto main() -> int {
                 gameWords.clear();
                 gameState = "username";
                 wordTyp = "";
-            } else if (menuState == "Settings") {
+            } else if (menuState == "Load game") {
+                /*menu = false;
+                isLbParsed = false;
+                timerStarted = false;
+                csv = parseCSV();
+                gameState = "game";
 
+                Save loadGame = parseSave()*/
+
+                auto loadGameText = drawLoadGame(window,font);
+                setActiveTextColor(window,loadGameText);
+
+            } else if (menuState == "Settings") {
             } else if (menuState == "Leaderboard") {
                 if (!isLbParsed) {
                     lb = parseLeaderboard();
@@ -76,7 +86,6 @@ auto main() -> int {
         }
 
         if (gameState != "no") {
-
             if (gameState == "username") {
                 auto usernameGraphic = drawEnterUsername(window, font, username);
             } else if (gameState == "game") {
@@ -106,29 +115,28 @@ auto main() -> int {
                 drawGameUI(window, font, wordTyp, timeElapsed, wordsLost);
             } else if (gameState == "pause") {
                 if (pauseState == "no") {
-                    auto posElements = drawPauseMenu(window,font);
-                    setActiveTextColor(window,posElements);
+                    auto posElements = drawPauseMenu(window, font);
+                    setActiveTextColor(window, posElements);
                     if (event.type == sf::Event::MouseButtonPressed) {
-                        pauseState = getMenuPress(window,posElements);
+                        pauseState = getMenuPress(window, posElements);
                     }
-
                 } else if (pauseState == "Continue") {
                     pauseState = "no";
                     gameState = "game";
-                }else if (pauseState == "Save") {
-                    saveGame(wordsLost,timeElapsed,pos,gameWords,wordTyp,username);
+                } else if (pauseState == "Save") {
+                    auto save = Save(wordsLost, timeElapsed, pos, gameWords, wordTyp, username);
+                    saveGame(save);
                     gameState = "no";
                     menu = true;
                     menuState = "no";
                     pauseState = "no";
-                }else if (pauseState == "Exit") {
+                } else if (pauseState == "Exit") {
                     gameState = "no";
                     menu = true;
                     menuState = "no";
                     pauseState = "no";
                 }
             }
-
         }
 
         while (window.pollEvent(event)) {
@@ -140,7 +148,7 @@ auto main() -> int {
                 if (event.key.code == sf::Keyboard::Escape) {
                     if (gameState == "game") {
                         gameState = "pause";
-                    }else{
+                    } else {
                         menu = true;
                         menuState = "no";
                         gameState = "no";
@@ -189,7 +197,6 @@ auto main() -> int {
                         if (event.key.code >= sf::Keyboard::Key::A && event.key.code <= sf::Keyboard::Key::Z) {
                             wordTyp += (char) alphabet[event.key.code];
                         }
-
                     }
                 }
             }

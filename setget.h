@@ -20,4 +20,4 @@ void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::
 
 bool checkEntered(std::string & wordTyp, std::deque<sf::Text> & gameWords);
 
-void saveGame(int & wordsLost,long long &timeElapsed,std::vector<sf::Vector2f>& pos, std::deque<sf::Text>& gameWords,std::string &wordTyp, std::string &username);
+void saveGame(Save & data);

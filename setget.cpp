@@ -153,15 +153,18 @@ std::vector<std::string> toFMTD(std::deque<sf::Text> const& v){
     auto vs = std::vector<std::string>();
 
     for(sf::Text t : v){
-        vs.push_back(fmt::format("",t.getPosition()))
+        vs.push_back(fmt::format("x:{} y:{} string:{}",t.getPosition().x,t.getPosition().y,(std::string)t.getString()));
     }
+
+    return vs;
 }
 
-void saveGame(int & wordsLost,long long &timeElapsed,std::vector<sf::Vector2f>& pos, std::deque<sf::Text>& gameWords,std::string &wordTyp, std::string &username){
+void saveGame(Save & data){
     std::fstream save;
     std::string dir = "reqfiles/saves/";
-    std::string saveName = username.append(std::to_string(static_cast<long long>(std::chrono::system_clock::now().time_since_epoch().count()))).append(".txt");
-    save.open(dir.append(saveName));
+    std::string saveName = data.username;
+    saveName.append(std::to_string(static_cast<long long>(std::chrono::system_clock::now().time_since_epoch().count()))).append(".txt");
+    save.open(dir.append(saveName),std::ios::out);
 
-    save.write(fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",wordsLost,timeElapsed,toFMT(pos),toFMTD(gameWords),wordTyp,username),);
+    save << fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",data.wordsLost,data.timeElapsed,toFMT(data.pos),toFMTD(data.gameWords),data.wordTyp,data.username);
 }

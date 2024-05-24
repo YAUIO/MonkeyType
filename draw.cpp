@@ -1,6 +1,28 @@
-#include <deque>
 #include "draw.h"
 
+
+std::vector<sf::Text> drawLoadGame(sf::RenderWindow& window, sf::Font &font) {
+
+    std::vector<std::string>saveNames;
+    std::vector<sf::Text> buttons;
+
+    for(const auto&entry : std::filesystem::directory_iterator("reqfiles/saves")) {
+        saveNames.push_back(entry.path().filename().generic_string());
+    }
+
+    int i = 0;
+    int xpos = wx/2;
+
+    while(i<saveNames.size()) {
+        buttons.push_back(sf::Text(saveNames[i],font));
+        buttons[i].setCharacterSize(characterSize);
+        buttons[i].setPosition(xpos - buttons[i].getGlobalBounds().width/2,(i*120)+20);
+        buttons[i].setColor(idleColor);
+        i++;
+    }
+
+    return buttons;
+}
 
 std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font) {
 
@@ -10,24 +32,29 @@ std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font) {
     button1Text.setCharacterSize(characterSize);
     button1Text.setPosition(xpos - button1Text.getLocalBounds().width/2, 20);
     button1Text.setFillColor(idleColor);
-    auto button2Text = sf::Text{"Settings", font};
+    auto button2Text = sf::Text{"Load game", font};
     button2Text.setCharacterSize(characterSize);
     button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 140);
     button2Text.setFillColor(idleColor);
-    auto button3Text = sf::Text{"Leaderboard", font};
+    auto button3Text = sf::Text{"Settings", font};
     button3Text.setCharacterSize(characterSize);
     button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
     button3Text.setFillColor(idleColor);
-    auto button4Text = sf::Text{"Exit", font};
+    auto button4Text = sf::Text{"Leaderboard", font};
     button4Text.setCharacterSize(characterSize);
     button4Text.setPosition(xpos - button4Text.getLocalBounds().width/2, 380);
     button4Text.setFillColor(idleColor);
-    auto text = std::vector<sf::Text>{button1Text, button2Text, button3Text, button4Text};
+    auto button5Text = sf::Text{"Exit", font};
+    button5Text.setCharacterSize(characterSize);
+    button5Text.setPosition(xpos - button5Text.getLocalBounds().width/2, 500);
+    button5Text.setFillColor(idleColor);
+    auto text = std::vector<sf::Text>{button1Text, button2Text, button3Text, button4Text,button5Text};
 
     window.draw(button1Text);
     window.draw(button2Text);
     window.draw(button3Text);
     window.draw(button4Text);
+    window.draw(button5Text);
 
     return text;
 }
