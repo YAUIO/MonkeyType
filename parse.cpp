@@ -79,6 +79,23 @@ std::vector<std::string> parseCSV() {
     return csv;
 }
 
+std::vector<sf::Vector2f> fromFMT(std::string const& v){
+    auto r = std::vector<sf::Vector2f>();
+
+        //sv.push_back(std::to_string(tf.x).append(" ").append(std::to_string(tf.y)));
+
+    return r;
+}
+
+std::deque<sf::Text> fromFMTD(std::string const& v){
+    auto vs = std::deque<sf::Text> ();
+        //vs.push_back(fmt::format("x:{} y:{} string:{}",t.getPosition().x,t.getPosition().y,(std::string)t.getString()));
+
+
+    return vs;
+}
+
+
 Save parseSave(std::string const& path) {
     auto save = Save();
 
@@ -91,9 +108,9 @@ Save parseSave(std::string const& path) {
     std::getline(saveF,line);
     save.timeElapsed=std::stol(line);
     std::getline(saveF,line);
-    //tovec pos
+    save.pos = fromFMT(line);
     std::getline(saveF,line);
-    //tovec gamewords
+    save.gameWords = fromFMTD(line);
     std::getline(saveF,line);
     std::getline(saveF,line);
     save.username = line;
