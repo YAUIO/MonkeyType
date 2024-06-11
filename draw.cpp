@@ -89,6 +89,26 @@ std::vector<sf::Text> drawPauseMenu(sf::RenderWindow &window, sf::Font &font) {
     return text;
 }
 
+std::vector<sf::Text> drawFailed(sf::RenderWindow &window, sf::Font &font) {
+
+    int xpos = wx / 2;
+
+    auto button1Text = sf::Text{"You failed!", font};
+    button1Text.setCharacterSize(characterSize);
+    button1Text.setPosition(xpos - button1Text.getLocalBounds().width/2, 20);
+    button1Text.setFillColor(sf::Color::Red);
+    auto button3Text = sf::Text{"Exit", font};
+    button3Text.setCharacterSize(characterSize);
+    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
+    button3Text.setFillColor(idleColor);
+    auto text = std::vector<sf::Text>{button3Text};
+
+    window.draw(button1Text);
+    window.draw(button3Text);
+
+    return text;
+}
+
 std::vector<std::vector<sf::Text>>
 drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboardEntry> const &leaderboard) {
     int yOffset = 120;
@@ -172,7 +192,7 @@ int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int co
     return lostWords;
 }
 
-void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost){
+void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error){
     auto uiBase = sf::RectangleShape(sf::Vector2f(wx,240));
     uiBase.setPosition(0,wy-240);
     uiBase.setFillColor(selectColor);
@@ -182,12 +202,20 @@ void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, 
     wordTypGraphic.setFillColor(idleColor);
 
     auto underscore = sf::Text("_",font,characterSize/2);
-    underscore.setFillColor(idleColor);
+    if(error){
+        underscore.setFillColor(sf::Color::Red);
+    }else{
+        underscore.setFillColor(idleColor);
+    }
     underscore.setPosition(wordTypGraphic.getPosition().x+wordTypGraphic.getGlobalBounds().width+wordTypGraphic.getLetterSpacing(),wordTypGraphic.getPosition().y);
 
     auto wordsLostGraph = sf::Text("Fails: " + std::to_string(wordsLost).append("/10"),font,characterSize/2);
     wordsLostGraph.setFillColor(idleColor);
     wordsLostGraph.setPosition(20,wy-20-wordsLostGraph.getGlobalBounds().height);
+
+    auto wordsTypedG = sf::Text("Words typed: " + std::to_string(wordsTyped),font,characterSize/2);
+    wordsTypedG.setFillColor(idleColor);
+    wordsTypedG.setPosition(20,wy-40-wordsLostGraph.getGlobalBounds().height-wordsTypedG.getGlobalBounds().height);
 
     window.draw(uiBase);
     if(timeElapsed%2>=1){
@@ -195,4 +223,5 @@ void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, 
     }
     window.draw(wordsLostGraph);
     window.draw(wordTypGraphic);
+    window.draw(wordsTypedG);
 }

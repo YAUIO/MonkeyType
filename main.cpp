@@ -29,10 +29,12 @@ auto main() -> int {
     bool isLbParsed = true;
     bool isGuest = true;
     bool timerStarted = false;
+    bool errorTyp = false;
     long long timeElapsed = 0;
     long long lastWordSpawned = 0;
     long long timeNow = 0;
     int wordsLost = 0;
+    int wordsTyped = 0;
     Save loadGame;
     auto pos = std::vector<sf::Vector2f>();
     auto csv = std::vector<std::string>();
@@ -56,6 +58,7 @@ auto main() -> int {
                 isGuest = true;
                 timerStarted = false;
                 wordsLost = 0;
+                wordsTyped = 0;
                 timeElapsed = 0;
                 csv = parseCSV();
                 pos.clear();
@@ -97,6 +100,7 @@ auto main() -> int {
                 if (!timerStarted) {
                     start = std::chrono::steady_clock::now();
                     if(!loadGame.username.empty()){
+                        wordsTyped = loadGame.wordsTyped;
                         wordsLost = loadGame.wordsLost;
                         gameWords = loadGame.gameWords;
                         pos = loadGame.pos;
@@ -109,22 +113,22 @@ auto main() -> int {
 
                 if (wordsLost >= 10) {
                     gameState = "failed";
-                    //td parsetolb
+                    toLeaderboard(leaderboardEntry(username,wordsTyped,timeElapsed));
                 }
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
 
                 timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
-                if ((timeNow - lastWordSpawned) / convToSec > 4) {
+                if ((timeNow - lastWordSpawned) / convToSec > 1) {
                     interpWord(generateWord(csv), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
                     pos.push_back(gameWords[gameWords.size() - 1].getPosition());
                 }
 
-                auto speed = std::pow(2, timeElapsed / 10000) * speedMultiplier;
+                auto speed = std::pow(2, timeElapsed / 1000) * speedMultiplier;
                 wordsLost += drawPlayfield(window, gameWords, speed);
-                drawGameUI(window, font, wordTyp, timeElapsed, wordsLost);
+                drawGameUI(window, font, wordTyp, timeElapsed, wordsLost, wordsTyped, errorTyp);
             } else if (gameState == "pause") {
                 if (pauseState == "no") {
                     auto posElements = drawPauseMenu(window, font);
@@ -136,7 +140,7 @@ auto main() -> int {
                     pauseState = "no";
                     gameState = "game";
                 } else if (pauseState == "Save") {
-                    auto save = Save(wordsLost, timeElapsed, pos, gameWords, wordTyp, username);
+                    auto save = Save(wordsLost, timeElapsed, pos, gameWords, wordTyp, username, wordsTyped);
                     saveGame(save);
                     gameWords.clear();
                     timerStarted = false;
@@ -148,6 +152,9 @@ auto main() -> int {
                     loadState = "no";
                 } else if (pauseState == "Exit") {
                     gameWords.clear();
+                    wordsTyped = 0;
+                    wordTyp.clear();
+                    wordsLost = 0;
                     timerStarted = false;
                     pos.clear();
                     gameState = "no";
@@ -155,6 +162,24 @@ auto main() -> int {
                     menuState = "no";
                     pauseState = "no";
                     loadState = "no";
+                }
+            } else if (gameState == "failed"){
+                auto failed = drawFailed(window,font);
+                setActiveTextColor(window,failed);
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    if(getMenuPress(window, failed)=="Exit"){
+                        gameWords.clear();
+                        wordsTyped = 0;
+                        wordTyp.clear();
+                        wordsLost = 0;
+                        timerStarted = false;
+                        pos.clear();
+                        gameState = "no";
+                        menu = true;
+                        menuState = "no";
+                        pauseState = "no";
+                        loadState = "no";
+                    }
                 }
             }
         }
@@ -206,7 +231,13 @@ auto main() -> int {
                 } else if (gameState == "game") {
                     if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::Enter) {
-                            checkEntered(wordTyp, gameWords);
+                            if(checkEntered(wordTyp, gameWords)){
+                                wordsTyped++;
+                                errorTyp = false;
+                            }else{
+                                errorTyp = true;
+                                wordTyp = "";
+                            }
                         }
 
                         if (event.key.code == sf::Keyboard::BackSpace) {

@@ -23,6 +23,8 @@ bool checkEntered(std::string & wordTyp, std::deque<sf::Text> & gameWords);
 
 void saveGame(Save & data);
 
+void toLeaderboard(leaderboardEntry const& l);
+
 int getFirstDigit(std::string & s);
 
 std::string getSavePath(std::string state, std::vector<sf::Text> buttons);

@@ -1,5 +1,5 @@
-window_x = 1280;
-window_y = 720;
+window_x = 1920;
+window_y = 1080;
 colors = 0;
 wordsMaxLength = 8;
 speed = 1;

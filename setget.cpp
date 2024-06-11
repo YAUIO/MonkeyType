@@ -10,8 +10,8 @@ void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
     else if (i == 0){
         gameWords.pop_front();
     }
-    else if (i < gameWords.size() / 2) {
-        auto s = std::deque(gameWords.begin(), gameWords.begin() + i - 1);
+    else if (i <= gameWords.size() / 2) {
+        auto s = std::deque(gameWords.begin(), gameWords.begin() + i);
         int x = 0;
         while (x <= i) {
             gameWords.pop_front();
@@ -180,7 +180,14 @@ void saveGame(Save & data){
     saveName.append(std::to_string(static_cast<long long>(std::chrono::system_clock::now().time_since_epoch().count()))).append(".txt");
     save.open(dir.append(saveName),std::ios::out);
 
-    save << fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n",data.wordsLost,data.timeElapsed,toFMT(data.pos),toFMTD(data.gameWords),data.wordTyp,data.username);
+    save << fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n{}\n",data.wordsLost,data.timeElapsed,toFMT(data.pos),toFMTD(data.gameWords),data.wordTyp,data.username,data.wordsTyped);
+}
+
+void toLeaderboard(leaderboardEntry const& l){
+    std::fstream lb;
+    std::string dir = "reqfiles/Leaderboard.txt";
+    lb.open(dir,std::ios::out | std::fstream::app);
+    lb << fmt::format("\n{},{},{}",l.username,l.wordsTyped,l.time);
 }
 
 std::string getSavePath(std::string state, std::vector<sf::Text> buttons) {

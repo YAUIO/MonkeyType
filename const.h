@@ -63,4 +63,5 @@ public:
     std::deque<sf::Text> gameWords;
     std::string wordTyp;
     std::string username;
+    int wordsTyped;
 };

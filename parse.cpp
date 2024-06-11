@@ -70,7 +70,7 @@ std::vector<std::string> parseCSV() {
         }
 
         if (line.size() <= maxLength && !line.empty()) {
-            csv.push_back(line.substr(0, line.size() - 1));
+            csv.push_back(line);
         }
 
         lineC++;
@@ -163,7 +163,6 @@ std::deque<sf::Text> fromFMTD(std::string const &v,sf::Font const &font) {
     return vs;
 }
 
-
 Save parseSave(std::string const &path, sf::Font const &font) {
     auto save = Save();
 
@@ -180,8 +179,11 @@ Save parseSave(std::string const &path, sf::Font const &font) {
     std::getline(saveF, line);
     save.gameWords = fromFMTD(line,font);
     std::getline(saveF, line);
+    save.wordTyp = line;
     std::getline(saveF, line);
     save.username = line;
+    std::getline(saveF,line);
+    save.wordsTyped = std::stoi(line);
     return save;
 }
 
