@@ -31,6 +31,24 @@ void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
     }
 }
 
+std::vector<int> getDefaultCfg(){
+    std::vector<int> r;
+    std::vector<int> cfgV = std::vector<int>{fontI, characterSize, speedMultiplier, wx, wy};
+    int i = 0;
+    int a = 0;
+    for(std::vector<int> v : cfgVal){
+        i = 0;
+        while(i<v.size()){
+            if(cfgV[a] == v[i]){
+                r.push_back(i);
+            }
+            i++;
+        }
+        a++;
+    }
+    return r;
+}
+
 bool isCursorOnButton(sf::RenderWindow &window, sf::RectangleShape const &button1) {
     return (sf::Mouse::getPosition(window).x - (button1.getPosition().x) <=
             button1.getSize().x) &&
@@ -145,7 +163,6 @@ int getFirstDigit(std::string & s) {
 
     while(index<s.size()) {
         if(std::regex_match(s.substr(0,index),std::regex(".*[0-9]"))) {
-            //fmt::println("{} {}",index,s.substr(0,index));
             return index-1;
         }
         index++;
@@ -170,6 +187,23 @@ bool checkEntered(std::string &wordTyp, std::deque<sf::Text> &gameWords) {
     }
 
     return isEntered;
+}
+
+std::vector<sf::Text> highlight(std::string &wordTyp, std::deque<sf::Text> &gameWords, sf::Font const& font) {
+    int i = 0;
+    std::vector<sf::Text> h;
+    while (i < gameWords.size()) {
+        if (gameWords[i].getString().find(wordTyp) != std::string::npos) {
+            sf::Text t = sf::Text(wordTyp,font);
+            t.setCharacterSize(gameWords[i].getCharacterSize());
+            t.setFillColor(selectColor);
+            t.setPosition(gameWords[i].getPosition());
+            h.push_back(t);
+        }
+        i++;
+    }
+
+    return h;
 }
 
 std::vector<std::string> toFMT(std::vector<sf::Vector2f> const& v){
@@ -207,7 +241,19 @@ void toLeaderboard(leaderboardEntry const& l, std::vector<leaderboardEntry> cons
     if(!lbv.empty()){
         lb << '\n';
     }
-    lb << fmt::format("{},{},{}",l.username,l.wordsTyped,l.time);
+    lb << fmt::format("{},{},{}",l.username,(l.wordsTyped*speedMultiplier),l.time);
+}
+
+void writeToCfg(){
+    std::fstream cfgS;
+    std::string dir = "reqfiles/Config.txt";
+    cfgS.open(dir,std::ios::out);
+    cfgS << fmt::format("window_x = {};\n"
+                       "window_y = {};\n"
+                       "wordsMaxLength = {};\n"
+                       "speed = {};\n"
+                       "characterSize = {};\n"
+                       "font = {};",wx,wy,maxLength,speedMultiplier,characterSize,fontI);
 }
 
 std::string getSavePath(std::string state, std::vector<sf::Text> buttons) {

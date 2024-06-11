@@ -14,7 +14,24 @@ auto main() -> int {
     auto window = sf::RenderWindow(sf::VideoMode(wx, wy), "MonkeyTyper");
     window.setFramerateLimit(240);
     auto font = sf::Font();
-    font.loadFromFile("reqfiles/font.otf");
+    switch (fontI) {
+        case 0:{
+            font.loadFromFile("reqfiles/font.otf");
+            break;
+        }
+        case 1:{
+            font.loadFromFile("reqfiles/font1.otf");
+            break;
+        }
+        case 2:{
+            font.loadFromFile("reqfiles/font2.otf");
+            break;
+        }
+        default:{
+            throw std::runtime_error("font value outside of range");
+        }
+    }
+
     auto event = sf::Event();
     auto words = std::vector<sf::Text>();
 
@@ -31,6 +48,9 @@ auto main() -> int {
     bool isGuest = true;
     bool timerStarted = false;
     bool errorTyp = false;
+    bool rPress = false;
+    bool lPress = false;
+    bool cfgWritten = true;
     long long timeElapsed = 0;
     long long lastWordSpawned = 0;
     long long timeNow = 0;
@@ -38,7 +58,7 @@ auto main() -> int {
     int wordsTyped = 0;
     int indSetting = 0;
     Save loadGame;
-    auto posSet = std::vector<int>{0,0,0};
+    auto posSet = getDefaultCfg();
     auto pos = std::vector<sf::Vector2f>();
     auto csv = std::vector<std::string>();
     auto lb = parseLeaderboard();
@@ -81,21 +101,53 @@ auto main() -> int {
                     timerStarted = false;
                     csv = parseCSV();
                     gameState = "game";
-                    loadGame = parseSave(getSavePath(loadState,loadGameText),font);
+                    loadGame = parseSave(getSavePath(loadState, loadGameText), font);
                 }
             } else if (menuState == "Settings") {
-                auto set = drawSettings(window,font,posSet);
-                setActiveTextColor(window,set);
-                if (event.type == sf::Event::MouseButtonPressed){
-                    setting = getMenuPress(window,set);
-                }else if(event.type == sf::Event::KeyPressed){
-                    if(event.key.code == sf::Keyboard::Key::Right){
-                        indSetting = getMenuPressI(window,set);
-                        //check the setting values length
-                        posSet[indSetting]++;
-                    }else if(event.key.code == sf::Keyboard::Key::Left){
-
+                auto set = drawSettings(window, font, posSet);
+                setActiveTextColor(window, set);
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    setting = getMenuPress(window, set);
+                    if (!setting.empty() && setting != "Exit" && setting != "no") {
+                        cfgWritten = false;
+                        indSetting = getMenuPressI(window, set);
+                        if (posSet[indSetting] + 1 < cfgVal[indSetting].size()) {
+                            posSet[indSetting]++;
+                        } else {
+                            posSet[indSetting] = 0;
+                        }
                     }
+                } else if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::Key::Right && !rPress) {
+                        cfgWritten = false;
+                        indSetting = getMenuPressI(window, set);
+                        rPress = true;
+                        if (posSet[indSetting] + 1 < cfgVal[indSetting].size()) {
+                            posSet[indSetting]++;
+                        } else {
+                            posSet[indSetting] = 0;
+                        }
+                    } else if (event.key.code == sf::Keyboard::Key::Left && !lPress) {
+                        cfgWritten = false;
+                        indSetting = getMenuPressI(window, set);
+                        lPress = true;
+                        if (posSet[indSetting] - 1 >= 0) {
+                            posSet[indSetting]--;
+                        } else {
+                            posSet[indSetting] = cfgVal[indSetting].size() - 1;
+                        }
+                    }
+                } else if (event.type == sf::Event::KeyReleased) {
+                    if (event.key.code == sf::Keyboard::Key::Right && rPress) {
+                        rPress = false;
+                    } else if (event.key.code == sf::Keyboard::Key::Left && lPress) {
+                        lPress = false;
+                    }
+                }
+                if (setting == "Exit") {
+                    menuState = "no";
+                    setting = "no";
+                    indSetting = 0;
                 }
             } else if (menuState == "Leaderboard") {
                 if (!isLbParsed) {
@@ -107,6 +159,37 @@ auto main() -> int {
             } else if (menuState == "Exit") {
                 window.close();
             }
+
+            if (!cfgWritten) {
+                if(cfgVal[0][posSet[0]] != fontI){
+                    fontI = cfgVal[0][posSet[0]];
+                    switch (fontI) {
+                        case 0:{
+                            font.loadFromFile("reqfiles/font.otf");
+                            break;
+                        }
+                        case 1:{
+                            font.loadFromFile("reqfiles/font1.otf");
+                            break;
+                        }case 2:{
+                            font.loadFromFile("reqfiles/font2.otf");
+                            break;
+                        }
+                        default:{
+                            throw std::runtime_error("font value outside of range");
+                        }
+                    }
+                }
+                characterSize = cfgVal[1][posSet[1]];
+                speedMultiplier = cfgVal[2][posSet[2]];
+                if (cfgVal[3][posSet[3]] != wx) {
+                    wx = cfgVal[3][posSet[3]];
+                    wy = cfgVal[4][posSet[3]];
+                    window.create(sf::VideoMode(wx, wy), "MonkeyType");
+                }
+                writeToCfg();
+                cfgWritten = true;
+            }
         }
 
         if (gameState != "no") {
@@ -115,7 +198,7 @@ auto main() -> int {
             } else if (gameState == "game") {
                 if (!timerStarted) {
                     start = std::chrono::steady_clock::now();
-                    if(!loadGame.username.empty()){
+                    if (!loadGame.username.empty()) {
                         wordsTyped = loadGame.wordsTyped;
                         wordsLost = loadGame.wordsLost;
                         gameWords = loadGame.gameWords;
@@ -129,7 +212,7 @@ auto main() -> int {
 
                 if (wordsLost >= 10) {
                     gameState = "failed";
-                    toLeaderboard(leaderboardEntry(username,wordsTyped,timeElapsed),lb);
+                    toLeaderboard(leaderboardEntry(username, wordsTyped, timeElapsed), lb);
                 }
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -141,9 +224,8 @@ auto main() -> int {
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
                     pos.push_back(gameWords[gameWords.size() - 1].getPosition());
                 }
-
-                auto speed = std::pow(2, timeElapsed / 1000) * speedMultiplier;
-                wordsLost += drawPlayfield(window, gameWords, speed);
+                auto speed = std::pow(2, timeElapsed / (1000/speedMultiplier));
+                wordsLost += drawPlayfield(window, gameWords, speed, font, wordTyp);
                 drawGameUI(window, font, wordTyp, timeElapsed, wordsLost, wordsTyped, errorTyp);
             } else if (gameState == "pause") {
                 if (pauseState == "no") {
@@ -179,11 +261,11 @@ auto main() -> int {
                     pauseState = "no";
                     loadState = "no";
                 }
-            } else if (gameState == "failed"){
-                auto failed = drawFailed(window,font);
-                setActiveTextColor(window,failed);
+            } else if (gameState == "failed") {
+                auto failed = drawFailed(window, font);
+                setActiveTextColor(window, failed);
                 if (event.type == sf::Event::MouseButtonPressed) {
-                    if(getMenuPress(window, failed)=="Exit"){
+                    if (getMenuPress(window, failed) == "Exit") {
                         gameWords.clear();
                         wordsTyped = 0;
                         wordTyp.clear();
@@ -247,10 +329,10 @@ auto main() -> int {
                 } else if (gameState == "game") {
                     if (event.type == sf::Event::KeyPressed) {
                         if (event.key.code == sf::Keyboard::Enter) {
-                            if(checkEntered(wordTyp, gameWords)){
+                            if (checkEntered(wordTyp, gameWords)) {
                                 wordsTyped++;
                                 errorTyp = false;
-                            }else{
+                            } else {
                                 errorTyp = true;
                                 wordTyp = "";
                             }
