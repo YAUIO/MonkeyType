@@ -33,6 +33,7 @@ auto main() -> int {
     long long lastWordSpawned = 0;
     long long timeNow = 0;
     int wordsLost = 0;
+    Save loadGame;
     auto pos = std::vector<sf::Vector2f>();
     auto csv = std::vector<std::string>();
     auto lb = parseLeaderboard();
@@ -74,8 +75,7 @@ auto main() -> int {
                     timerStarted = false;
                     csv = parseCSV();
                     gameState = "game";
-
-                    Save loadGame = parseSave(getSavePath(loadState,loadGameText));
+                    loadGame = parseSave(getSavePath(loadState,loadGameText),font);
                 }
             } else if (menuState == "Settings") {
             } else if (menuState == "Leaderboard") {
@@ -96,6 +96,14 @@ auto main() -> int {
             } else if (gameState == "game") {
                 if (!timerStarted) {
                     start = std::chrono::steady_clock::now();
+                    if(!loadGame.username.empty()){
+                        wordsLost = loadGame.wordsLost;
+                        gameWords = loadGame.gameWords;
+                        pos = loadGame.pos;
+                        wordTyp = loadGame.wordTyp;
+                        username = loadGame.username;
+                        timeElapsed += loadGame.timeElapsed;
+                    }
                     timerStarted = true;
                 }
 
@@ -108,7 +116,6 @@ auto main() -> int {
 
                 timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
-
                 if ((timeNow - lastWordSpawned) / convToSec > 4) {
                     interpWord(generateWord(csv), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -131,15 +138,23 @@ auto main() -> int {
                 } else if (pauseState == "Save") {
                     auto save = Save(wordsLost, timeElapsed, pos, gameWords, wordTyp, username);
                     saveGame(save);
+                    gameWords.clear();
+                    timerStarted = false;
+                    pos.clear();
                     gameState = "no";
                     menu = true;
                     menuState = "no";
                     pauseState = "no";
+                    loadState = "no";
                 } else if (pauseState == "Exit") {
+                    gameWords.clear();
+                    timerStarted = false;
+                    pos.clear();
                     gameState = "no";
                     menu = true;
                     menuState = "no";
                     pauseState = "no";
+                    loadState = "no";
                 }
             }
         }
