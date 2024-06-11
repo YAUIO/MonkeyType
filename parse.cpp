@@ -114,7 +114,7 @@ std::vector<sf::Vector2f> fromFMT(std::string const &v) {
     return r;
 }
 
-std::deque<sf::Text> fromFMTD(std::string const &v) {
+std::deque<sf::Text> fromFMTD(std::string const &v,sf::Font const &font) {
     auto vs = std::deque<sf::Text>();
     //vs.push_back(fmt::format("x:{} y:{} string:{}",t.getPosition().x,t.getPosition().y,(std::string)t.getString()));
     int i = 0;
@@ -152,6 +152,9 @@ std::deque<sf::Text> fromFMTD(std::string const &v) {
             b.setString(v.substr(wrd[a] + 1, sp[a * 3 + 2] - wrd[a] - 4));
         }
 
+        b.setFont(font);
+        b.setFillColor(idleColor);
+        b.setCharacterSize(characterSize / 2);
 
         vs.push_back(b);
         a++;
@@ -161,7 +164,7 @@ std::deque<sf::Text> fromFMTD(std::string const &v) {
 }
 
 
-Save parseSave(std::string const &path) {
+Save parseSave(std::string const &path, sf::Font const &font) {
     auto save = Save();
 
     std::fstream saveF;
@@ -175,7 +178,7 @@ Save parseSave(std::string const &path) {
     std::getline(saveF, line);
     save.pos = fromFMT(line);
     std::getline(saveF, line);
-    save.gameWords = fromFMTD(line);
+    save.gameWords = fromFMTD(line,font);
     std::getline(saveF, line);
     std::getline(saveF, line);
     save.username = line;

@@ -75,7 +75,7 @@ auto main() -> int {
                     timerStarted = false;
                     csv = parseCSV();
                     gameState = "game";
-                    loadGame = parseSave(getSavePath(loadState,loadGameText));
+                    loadGame = parseSave(getSavePath(loadState,loadGameText),font);
                 }
             } else if (menuState == "Settings") {
             } else if (menuState == "Leaderboard") {
@@ -96,11 +96,14 @@ auto main() -> int {
             } else if (gameState == "game") {
                 if (!timerStarted) {
                     start = std::chrono::steady_clock::now();
-                    wordsLost = loadGame.wordsLost;
-                    gameWords = loadGame.gameWords;
-                    pos = loadGame.pos;
-                    wordTyp = loadGame.wordTyp;
-                    username = loadGame.username;
+                    if(!loadGame.username.empty()){
+                        wordsLost = loadGame.wordsLost;
+                        gameWords = loadGame.gameWords;
+                        pos = loadGame.pos;
+                        wordTyp = loadGame.wordTyp;
+                        username = loadGame.username;
+                        timeElapsed += loadGame.timeElapsed;
+                    }
                     timerStarted = true;
                 }
 
@@ -113,7 +116,6 @@ auto main() -> int {
 
                 timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
-                timeElapsed += loadGame.timeElapsed;
                 if ((timeNow - lastWordSpawned) / convToSec > 4) {
                     interpWord(generateWord(csv), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
