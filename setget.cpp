@@ -101,6 +101,23 @@ getMenuPress(sf::RenderWindow &window, std::vector<sf::Text> &elements) {
     return returnStr;
 }
 
+int
+getMenuPressI(sf::RenderWindow &window, std::vector<sf::Text> &elements) {
+    using namespace std::chrono_literals;
+    int returnStr = -1;
+    int i = 0;
+    while (i < elements.size()) {
+        if (isCursorOnButton(window, elements[i])) {
+            returnStr = i;
+            break;
+        } else {
+            setFillColorDraw(window, elements[i], idleColor);
+        }
+        i++;
+    }
+    return returnStr;
+}
+
 void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::Text>> &elements) {
     int i = 1;
     int lineC;
@@ -183,11 +200,14 @@ void saveGame(Save & data){
     save << fmt::format("{}\n{}\n{}\n{}\n{}\n{}\n{}\n",data.wordsLost,data.timeElapsed,toFMT(data.pos),toFMTD(data.gameWords),data.wordTyp,data.username,data.wordsTyped);
 }
 
-void toLeaderboard(leaderboardEntry const& l){
+void toLeaderboard(leaderboardEntry const& l, std::vector<leaderboardEntry> const & lbv){
     std::fstream lb;
     std::string dir = "reqfiles/Leaderboard.txt";
     lb.open(dir,std::ios::out | std::fstream::app);
-    lb << fmt::format("\n{},{},{}",l.username,l.wordsTyped,l.time);
+    if(!lbv.empty()){
+        lb << '\n';
+    }
+    lb << fmt::format("{},{},{}",l.username,l.wordsTyped,l.time);
 }
 
 std::string getSavePath(std::string state, std::vector<sf::Text> buttons) {

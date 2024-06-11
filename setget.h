@@ -17,13 +17,16 @@ void setActiveTextColor(sf::RenderWindow &window, std::vector<sf::Text> &element
 std::string
 getMenuPress(sf::RenderWindow &window, std::vector<sf::Text> &elements);
 
+int
+getMenuPressI(sf::RenderWindow &window, std::vector<sf::Text> &elements);
+
 void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::Text>> &elements);
 
 bool checkEntered(std::string & wordTyp, std::deque<sf::Text> & gameWords);
 
 void saveGame(Save & data);
 
-void toLeaderboard(leaderboardEntry const& l);
+void toLeaderboard(leaderboardEntry const& l,std::vector<leaderboardEntry> const & lbv);
 
 int getFirstDigit(std::string & s);
 

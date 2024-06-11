@@ -109,6 +109,36 @@ std::vector<sf::Text> drawFailed(sf::RenderWindow &window, sf::Font &font) {
     return text;
 }
 
+std::vector<sf::Text> drawSettings(sf::RenderWindow &window, sf::Font &font, std::vector<int> const& pos) {
+
+    int xpos = wx / 2;
+
+    auto button1Text = sf::Text{"Font < " + std::to_string(pos[0]) + " >", font};
+    button1Text.setCharacterSize(characterSize);
+    button1Text.setPosition(xpos - button1Text.getLocalBounds().width/2, 20);
+    button1Text.setFillColor(idleColor);
+    auto button2Text = sf::Text{"Speed < " + std::to_string(pos[1]) + " >", font};
+    button2Text.setCharacterSize(characterSize);
+    button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 140);
+    button2Text.setFillColor(idleColor);
+    auto button3Text = sf::Text{"Resolution < " + std::to_string(pos[2]) + " >", font};
+    button3Text.setCharacterSize(characterSize);
+    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
+    button3Text.setFillColor(idleColor);
+    auto button4Text = sf::Text{"Exit", font};
+    button4Text.setCharacterSize(characterSize);
+    button4Text.setPosition(xpos - button4Text.getLocalBounds().width/2, 380);
+    button4Text.setFillColor(idleColor);
+    auto text = std::vector<sf::Text>{button1Text,button2Text,button3Text,button4Text};
+
+    window.draw(button1Text);
+    window.draw(button2Text);
+    window.draw(button3Text);
+    window.draw(button4Text);
+
+    return text;
+}
+
 std::vector<std::vector<sf::Text>>
 drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboardEntry> const &leaderboard) {
     int yOffset = 120;

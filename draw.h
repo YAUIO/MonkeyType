@@ -16,6 +16,8 @@ std::vector<sf::Text> drawMenu(sf::RenderWindow &window, sf::Font &font);
 
 std::vector<sf::Text> drawPauseMenu(sf::RenderWindow &window, sf::Font &font);
 
+std::vector<sf::Text> drawSettings(sf::RenderWindow &window, sf::Font &font, std::vector<int> const& pos);
+
 std::vector<sf::Text> drawFailed(sf::RenderWindow &window, sf::Font &font);
 
 std::vector<std::vector<sf::Text>>

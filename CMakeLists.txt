@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.25)
 project(MonkeyType)
 set(CMAKE_CXX_STANDARD 20)
 include(FetchContent)
-set(BUILD_SHARED_LIBS FALSE)
 
 FetchContent_Declare(
         fmt
@@ -12,13 +11,15 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-FETCHCONTENT_DECLARE(
+set(BUILD_SHARED_LIBS FALSE)
+
+FetchContent_Declare(
         SFML
         GIT_REPOSITORY https://github.com/SFML/SFML
         GIT_TAG 2.6.1
 )
 
-FETCHCONTENT_MAKEAVAILABLE(SFML)
+FetchContent_MakeAvailable(SFML)
 
 add_executable(MonkeyType main.cpp
         draw.cpp
@@ -28,5 +29,6 @@ add_executable(MonkeyType main.cpp
         parse.h
         setget.cpp
         setget.h)
+
 target_link_libraries(MonkeyType sfml-graphics)
 target_link_libraries(MonkeyType fmt)

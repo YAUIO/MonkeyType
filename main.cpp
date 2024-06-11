@@ -24,6 +24,7 @@ auto main() -> int {
     std::string gameState = "no";
     std::string pauseState = "no";
     std::string username = "Guest";
+    std::string setting = "no";
     std::string wordTyp;
     bool menu = true;
     bool isLbParsed = true;
@@ -35,7 +36,9 @@ auto main() -> int {
     long long timeNow = 0;
     int wordsLost = 0;
     int wordsTyped = 0;
+    int indSetting = 0;
     Save loadGame;
+    auto posSet = std::vector<int>{0,0,0};
     auto pos = std::vector<sf::Vector2f>();
     auto csv = std::vector<std::string>();
     auto lb = parseLeaderboard();
@@ -81,6 +84,19 @@ auto main() -> int {
                     loadGame = parseSave(getSavePath(loadState,loadGameText),font);
                 }
             } else if (menuState == "Settings") {
+                auto set = drawSettings(window,font,posSet);
+                setActiveTextColor(window,set);
+                if (event.type == sf::Event::MouseButtonPressed){
+                    setting = getMenuPress(window,set);
+                }else if(event.type == sf::Event::KeyPressed){
+                    if(event.key.code == sf::Keyboard::Key::Right){
+                        indSetting = getMenuPressI(window,set);
+                        //check the setting values length
+                        posSet[indSetting]++;
+                    }else if(event.key.code == sf::Keyboard::Key::Left){
+
+                    }
+                }
             } else if (menuState == "Leaderboard") {
                 if (!isLbParsed) {
                     lb = parseLeaderboard();
@@ -113,7 +129,7 @@ auto main() -> int {
 
                 if (wordsLost >= 10) {
                     gameState = "failed";
-                    toLeaderboard(leaderboardEntry(username,wordsTyped,timeElapsed));
+                    toLeaderboard(leaderboardEntry(username,wordsTyped,timeElapsed),lb);
                 }
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
