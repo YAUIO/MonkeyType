@@ -119,37 +119,54 @@ std::vector<sf::Text> drawSettings(sf::RenderWindow &window, sf::Font &font, std
     button1Text.setFillColor(idleColor);
     auto button2Text = sf::Text{"Font Size < " + std::to_string(pos[1]) + " >", font};
     button2Text.setCharacterSize(characterSize);
-    button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 140);
+    button2Text.setPosition(xpos - button2Text.getLocalBounds().width/2, 20+characterSize);
     button2Text.setFillColor(idleColor);
     auto button3Text = sf::Text{"Speed < " + std::to_string(pos[2]) + " >", font};
     button3Text.setCharacterSize(characterSize);
-    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 260);
+    button3Text.setPosition(xpos - button3Text.getLocalBounds().width/2, 20+characterSize*2);
     button3Text.setFillColor(idleColor);
-    auto button4Text = sf::Text{"Resolution < " + std::to_string(pos[3]) + " >", font};
+    auto button4Text = sf::Text{"Max word size < " + std::to_string(maxLength) + " >", font};
     button4Text.setCharacterSize(characterSize);
-    button4Text.setPosition(xpos - button4Text.getLocalBounds().width/2, 380);
+    button4Text.setPosition(xpos - button4Text.getLocalBounds().width/2, 20+characterSize*3);
     button4Text.setFillColor(idleColor);
-    auto button5Text = sf::Text{"Exit", font};
+    auto button5Text = sf::Text{"Resolution < " + std::to_string(pos[4]) + " >", font};
     button5Text.setCharacterSize(characterSize);
-    button5Text.setPosition(xpos - button5Text.getLocalBounds().width/2, 500);
+    button5Text.setPosition(xpos - button5Text.getLocalBounds().width/2, 20+characterSize*4);
     button5Text.setFillColor(idleColor);
-    auto text = std::vector<sf::Text>{button1Text,button2Text,button3Text,button4Text,button5Text};
+    auto button6Text = sf::Text{"Exit", font};
+    button6Text.setCharacterSize(characterSize);
+    button6Text.setPosition(xpos - button6Text.getLocalBounds().width/2, 20+characterSize*5);
+    button6Text.setFillColor(idleColor);
+    auto text = std::vector<sf::Text>{button1Text,button2Text,button3Text,button4Text,button5Text,button6Text};
 
     window.draw(button1Text);
     window.draw(button2Text);
     window.draw(button3Text);
     window.draw(button4Text);
     window.draw(button5Text);
+    window.draw(button6Text);
 
     return text;
 }
 
 std::vector<std::vector<sf::Text>>
 drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboardEntry> const &leaderboard) {
-    int yOffset = 120;
+    int yOffset = characterSize;
     auto leaderboardGraphics = std::vector<std::vector<sf::Text>>();
     int i = 0;
     int element;
+    size_t max = 0;
+
+    for (leaderboardEntry const& a : leaderboard){
+        if(a.username.size()>max){
+            max = a.username.size();
+        }
+    }
+
+    if(max<8/3){
+        max = 8;
+    }
+
     while (i < leaderboard.size() + 1) {
         if (i != 0) {
             leaderboardGraphics.push_back(std::vector<sf::Text>{sf::Text(std::to_string(i), font),
@@ -169,19 +186,19 @@ drawLeaderboard(sf::RenderWindow &window, sf::Font &font, std::vector<leaderboar
 
             if (i != 0) {
                 leaderboardGraphics[i][element].setCharacterSize(characterSize);
+                leaderboardGraphics[i][element].setPosition(leaderboardGraphics[0][element].getPosition().x,yOffset * (i));
             } else {
                 leaderboardGraphics[i][element].setCharacterSize(characterSize / 3);
+                if (element == 0) {
+                    leaderboardGraphics[i][element].setPosition(20, yOffset * (i));
+                } else if (element == 2){
+                    leaderboardGraphics[i][element].setPosition(20+leaderboardGraphics[i][element-1].getPosition().x+leaderboardGraphics[i][element-1].getGlobalBounds().width+(max*characterSize-(20+leaderboardGraphics[i][element-1].getPosition().x+leaderboardGraphics[i][element-1].getGlobalBounds().width)), yOffset * (i));
+                } else {
+                    leaderboardGraphics[i][element].setPosition(20+leaderboardGraphics[i][element-1].getPosition().x+leaderboardGraphics[i][element-1].getGlobalBounds().width, yOffset * (i));
+                }
             }
 
-            if (element == 0) {
-                leaderboardGraphics[i][element].setPosition(20, yOffset * (i));
-            } else if (element == 1) {
-                leaderboardGraphics[i][element].setPosition(240, yOffset * (i));
-            } else if (element == 2) {
-                leaderboardGraphics[i][element].setPosition(800, yOffset * (i));
-            } else if (element == 3) {
-                leaderboardGraphics[i][element].setPosition(1400, yOffset * (i));
-            }
+
             window.draw(leaderboardGraphics[i][element]);
             element++;
         }
@@ -208,7 +225,7 @@ std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Fo
     return std::pair{staticText, usernameGraphic};
 }
 
-int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int const &speed, sf::Font const& font, std::string wordTyp) {
+int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, float const &speed, sf::Font const& font, std::string wordTyp) {
     int i = 0;
     int lostWords = 0;
 
@@ -219,6 +236,7 @@ int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int co
             lostWords++;
         }
         if(words.size()!=0){
+            words[i].setCharacterSize(characterSize/2);
             words[i].move( speed, 0);
             window.draw(words[i]);
         }
@@ -237,7 +255,18 @@ int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, int co
     return lostWords;
 }
 
-void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error){
+sf::Text getUIToolTip(std::string const& text, std::string const& key, sf::Font const& font, int i, std::vector<int> const& val){
+    auto keyG = sf::Text(key + " - " + text + " [" + std::to_string(val[i]) + "]", font,characterSize/3);
+    if(i==4){
+        i--;
+    }
+    keyG.setFillColor(idleColor);
+    keyG.setPosition(wx-8-keyG.getGlobalBounds().width,wy-240-keyG.getCharacterSize()/8+keyG.getGlobalBounds().height + i*keyG.getCharacterSize());
+
+    return keyG;
+}
+
+void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error, std::vector<int> const& val){
     auto uiBase = sf::RectangleShape(sf::Vector2f(wx,240));
     uiBase.setPosition(0,wy-240);
     uiBase.setFillColor(selectColor);
@@ -263,6 +292,19 @@ void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, 
     wordsTypedG.setPosition(20,wy-40-wordsLostGraph.getGlobalBounds().height-wordsTypedG.getGlobalBounds().height);
 
     window.draw(uiBase);
+
+    auto text = std::vector<std::string>{"Font","Size","Speed","","Resolution"};
+    auto keys = std::vector<std::string>{"F1","F2","F3","","F4"};
+    int i = 0;
+
+    while(i<text.size()) {
+        if(i!=3){
+            window.draw(getUIToolTip(text[i], keys[i], font, i, val));
+        }
+        i++;
+    }
+
+
     if(timeElapsed%2>=1){
         window.draw(underscore);
     }

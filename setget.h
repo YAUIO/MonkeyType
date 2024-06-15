@@ -36,4 +36,4 @@ void toLeaderboard(leaderboardEntry const& l,std::vector<leaderboardEntry> const
 
 int getFirstDigit(std::string & s);
 
-std::string getSavePath(std::string state, std::vector<sf::Text> buttons);
+std::string getSavePath(std::string const& state, std::vector<sf::Text> buttons);

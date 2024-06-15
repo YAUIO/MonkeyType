@@ -1,9 +1,5 @@
 #include "parse.h"
-
-#include <variant>
-
-#include "fmt/ranges.h"
-
+#include <iostream>
 std::vector<leaderboardEntry> parseLeaderboard() {
     namespace fs = std::filesystem;
     auto lbpath = fs::path("reqfiles/Leaderboard.txt");
@@ -19,7 +15,7 @@ std::vector<leaderboardEntry> parseLeaderboard() {
     while (std::getline(lbstream, line, '\n')) {
         i = 0;
 
-        if (line == "") {
+        if (line.empty()) {
             break;
         }
 
@@ -32,9 +28,9 @@ std::vector<leaderboardEntry> parseLeaderboard() {
             }
 
             if (i != 2) {
-                endPos = line.find(',', startPos + 1);
+                endPos = static_cast<int>(line.find(',', startPos + 1));
             } else {
-                endPos = line.size();
+                endPos = static_cast<int>(line.size());
             }
 
             arg = line.substr(startPos, endPos - startPos);
@@ -65,7 +61,7 @@ std::vector<std::string> parseCSV() {
     int lineC = 0;
 
     while (std::getline(csvstream, line, '\n')) {
-        if (line == "") {
+        if (line.empty()) {
             break;
         }
 
@@ -143,8 +139,8 @@ std::deque<sf::Text> fromFMTD(std::string const &v,sf::Font const &font) {
     int a = 0;
     sf::Text b;
     while (a < com.size() + 1) {
-        b.setPosition(std::stoi(v.substr(x[a] + 1, sp[a * 3] - x[a])),
-                      std::stoi(v.substr(y[a] + 1, sp[a * 3 + 1] - y[a])));
+        b.setPosition(std::stof(v.substr(x[a] + 1, sp[a * 3] - x[a])),
+                      std::stof(v.substr(y[a] + 1, sp[a * 3 + 1] - y[a])));
 
         if (a == com.size()) {
             b.setString(v.substr(wrd[a] + 1, v.size() - 3 - wrd[a]));
@@ -196,7 +192,7 @@ std::string generateWord(std::vector<std::string> const &csv) {
 
     auto word = std::string();
 
-    word = csv[rand() % csv.size()].substr(0, word.size() - 1);
+    word = csv[rand() % csv.size()];
 
     return word;
 }
@@ -205,22 +201,17 @@ void interpWord(std::string const &word, sf::Font const &font, std::deque<sf::Te
     auto graphWord = sf::Text(word, font);
     float ry;
     int i = 0;
-    bool nUniq = false;
     graphWord.setFillColor(idleColor);
     graphWord.setCharacterSize(characterSize / 2);
     if (!vec.empty()) {
-        while (!nUniq) {
-            ry = rand() % static_cast<int>(wy - (240 + graphWord.getGlobalBounds().height));
+        while (true) {
+            ry = static_cast<float>(rand() % static_cast<int>(static_cast<float>(wy) - (240 + graphWord.getGlobalBounds().height)));
             i = 0;
             while (i < vec.size()) {
                 if (ry > wy - 240) {
                     break;
                 }
-                if (vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry) {
-                    i++;
-                } else if (vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f) {
-                    i++;
-                } else if (vec[i].getPosition().x > graphWord.getLocalBounds().width) {
+                if (vec[i].getPosition().y + graphWord.getLocalBounds().height + 20 < ry || vec[i].getPosition().y > ry + graphWord.getLocalBounds().height + 20.f || vec[i].getPosition().x > graphWord.getLocalBounds().width) {
                     i++;
                 } else {
                     break;
@@ -228,12 +219,10 @@ void interpWord(std::string const &word, sf::Font const &font, std::deque<sf::Te
             }
             if (i == vec.size()) {
                 break;
-            } else {
-                nUniq = false;
             }
         }
     } else {
-        ry = rand() % static_cast<int>(wy - (240 + graphWord.getGlobalBounds().height));
+        ry =  static_cast<float>(rand() % static_cast<int>(static_cast<float>(wy) - (240 + graphWord.getGlobalBounds().height)));
     }
     graphWord.setPosition(-graphWord.getLocalBounds().width, ry);
     vec.push_back(graphWord);

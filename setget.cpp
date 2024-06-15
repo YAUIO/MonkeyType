@@ -33,7 +33,7 @@ void deleteIndexDeque(std::deque<T> & gameWords, const int & i){
 
 std::vector<int> getDefaultCfg(){
     std::vector<int> r;
-    std::vector<int> cfgV = std::vector<int>{fontI, characterSize, speedMultiplier, wx, wy};
+    std::vector<int> cfgV = std::vector<int>{fontI, characterSize, speedMultiplier, maxLength, wx, wy};
     int i = 0;
     int a = 0;
     for(std::vector<int> v : cfgVal){
@@ -140,7 +140,7 @@ void setActiveTextColorLb(sf::RenderWindow &window, std::vector<std::vector<sf::
     int i = 1;
     int lineC;
     while (i < elements.size()) {
-        auto line = sf::RectangleShape(sf::Vector2f(wx, 100));
+        auto line = sf::RectangleShape(sf::Vector2f(wx, elements[i][0].getGlobalBounds().height));
         line.setPosition(elements[i][0].getPosition().x, elements[i][0].getPosition().y + 22);
         lineC = 0;
         if (isCursorOnButton(window, line)) {
@@ -217,7 +217,7 @@ std::vector<std::string> toFMT(std::vector<sf::Vector2f> const& v){
 std::vector<std::string> toFMTD(std::deque<sf::Text> const& v){
     auto vs = std::vector<std::string>();
 
-    for(sf::Text t : v){
+    for(sf::Text const & t : v){
         vs.push_back(fmt::format("x:{} y:{} string:{}",t.getPosition().x,t.getPosition().y,(std::string)t.getString()));
     }
 
@@ -256,7 +256,7 @@ void writeToCfg(){
                        "font = {};",wx,wy,maxLength,speedMultiplier,characterSize,fontI);
 }
 
-std::string getSavePath(std::string state, std::vector<sf::Text> buttons) {
+std::string getSavePath(std::string const & state, std::vector<sf::Text> buttons) {
     int i = 0;
     while (i<buttons.size()) {
         if(buttons[i].getString()==state) {

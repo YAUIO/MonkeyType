@@ -12,6 +12,9 @@
 auto main() -> int {
     //SFML
     auto window = sf::RenderWindow(sf::VideoMode(wx, wy), "MonkeyTyper");
+    if(wx==1920){
+        window.create(sf::VideoMode(wx, wy), "MonkeyTyper", sf::Style::Fullscreen);
+    }
     window.setFramerateLimit(240);
     auto font = sf::Font();
     switch (fontI) {
@@ -51,7 +54,7 @@ auto main() -> int {
     bool rPress = false;
     bool lPress = false;
     bool cfgWritten = true;
-    long long timeElapsed = 0;
+    long timeElapsed = 0;
     long long lastWordSpawned = 0;
     long long timeNow = 0;
     int wordsLost = 0;
@@ -134,7 +137,7 @@ auto main() -> int {
                         if (posSet[indSetting] - 1 >= 0) {
                             posSet[indSetting]--;
                         } else {
-                            posSet[indSetting] = cfgVal[indSetting].size() - 1;
+                            posSet[indSetting] = static_cast<int>(cfgVal[indSetting].size()) - 1;
                         }
                     }
                 } else if (event.type == sf::Event::KeyReleased) {
@@ -154,6 +157,16 @@ auto main() -> int {
                     lb = parseLeaderboard();
                     isLbParsed = true;
                 }
+                std::ranges::sort(lb,[](leaderboardEntry const& a,leaderboardEntry const& b){
+                    if(a.wordsTyped==0 && b.wordsTyped == 0){
+                        return a.time > b.time;
+                    }else if(a.wordsTyped==0){
+                        return false;
+                    }else if(b.wordsTyped==0){
+                        return true;
+                    }
+                    return a.wordsTyped/a.time > b.wordsTyped/b.time;
+                });
                 auto leaderboardText = drawLeaderboard(window, font, lb);
                 setActiveTextColorLb(window, leaderboardText);
             } else if (menuState == "Exit") {
@@ -182,10 +195,22 @@ auto main() -> int {
                 }
                 characterSize = cfgVal[1][posSet[1]];
                 speedMultiplier = cfgVal[2][posSet[2]];
-                if (cfgVal[3][posSet[3]] != wx) {
-                    wx = cfgVal[3][posSet[3]];
-                    wy = cfgVal[4][posSet[3]];
-                    window.create(sf::VideoMode(wx, wy), "MonkeyType");
+                maxLength = cfgVal[3][posSet[3]];
+                if (cfgVal[4][posSet[4]] != wx) {
+                    if(posSet[4]==3){
+                        if(posSet[1]>3){
+                            posSet[1] = 3;
+                            characterSize = cfgVal[1][posSet[1]];
+                        }
+                    }
+                    wx = cfgVal[4][posSet[4]];
+                    wy = cfgVal[5][posSet[4]];
+                    if(cfgVal[4][posSet[4]] == 1920){
+                        window.create(sf::VideoMode(wx, wy), "MonkeyType", sf::Style::Fullscreen);
+                    }else{
+                        window.create(sf::VideoMode(wx, wy), "MonkeyType");
+                    }
+                    window.setFramerateLimit(240);
                 }
                 writeToCfg();
                 cfgWritten = true;
@@ -205,7 +230,7 @@ auto main() -> int {
                         pos = loadGame.pos;
                         wordTyp = loadGame.wordTyp;
                         username = loadGame.username;
-                        timeElapsed += loadGame.timeElapsed;
+                        timeElapsed += static_cast<long>(loadGame.timeElapsed);
                     }
                     timerStarted = true;
                 }
@@ -217,16 +242,16 @@ auto main() -> int {
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
 
-                timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
+                timeElapsed = static_cast<long>(timeNow - start.time_since_epoch().count()); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
-                if ((timeNow - lastWordSpawned) / convToSec > 1) {
+                if ((timeNow - lastWordSpawned) / convToMsec > (1000/speedMultiplier)*4) {
                     interpWord(generateWord(csv), font, gameWords);
                     lastWordSpawned = std::chrono::steady_clock::now().time_since_epoch().count();
                     pos.push_back(gameWords[gameWords.size() - 1].getPosition());
                 }
-                auto speed = std::pow(2, timeElapsed / (1000/speedMultiplier));
-                wordsLost += drawPlayfield(window, gameWords, speed, font, wordTyp);
-                drawGameUI(window, font, wordTyp, timeElapsed, wordsLost, wordsTyped, errorTyp);
+                auto speed = std::pow(2, static_cast<double>(timeElapsed) / (800/(std::pow(speedMultiplier,speedMultiplier))));
+                wordsLost += drawPlayfield(window, gameWords, static_cast<float>(speed), font, wordTyp);
+                drawGameUI(window, font, wordTyp, timeElapsed, wordsLost, wordsTyped, errorTyp, posSet);
             } else if (gameState == "pause") {
                 if (pauseState == "no") {
                     auto posElements = drawPauseMenu(window, font);
@@ -336,15 +361,92 @@ auto main() -> int {
                                 errorTyp = true;
                                 wordTyp = "";
                             }
-                        }
-
-                        if (event.key.code == sf::Keyboard::BackSpace) {
+                        }else if (event.key.code == sf::Keyboard::BackSpace) {
                             wordTyp = wordTyp.substr(0, wordTyp.size() - 1);
-                        }
-
-
-                        if (event.key.code >= sf::Keyboard::Key::A && event.key.code <= sf::Keyboard::Key::Z) {
+                        }else if (event.key.code >= sf::Keyboard::Key::A && event.key.code <= sf::Keyboard::Key::Z) {
                             wordTyp += (char) alphabet[event.key.code];
+                        }else if (event.key.code == sf::Keyboard::F1) {
+                            posSet[0]++;
+
+                            if(posSet[0]>cfgVal[0].size()-1){
+                                posSet[0] = 0;
+                            }else if(posSet[0]<0){
+                                posSet[0] = static_cast<int>(cfgVal[0].size())-1;
+                            }
+
+                            if(cfgVal[0][posSet[0]] != fontI){
+                                fontI = cfgVal[0][posSet[0]];
+                                switch (fontI) {
+                                    case 0:{
+                                        font.loadFromFile("reqfiles/font.otf");
+                                        break;
+                                    }
+                                    case 1:{
+                                        font.loadFromFile("reqfiles/font1.otf");
+                                        break;
+                                    }case 2:{
+                                        font.loadFromFile("reqfiles/font2.otf");
+                                        break;
+                                    }
+                                    default:{
+                                        throw std::runtime_error("font value outside of range");
+                                    }
+                                }
+                            }
+                            writeToCfg();
+                            cfgWritten = true;
+                        }else if (event.key.code == sf::Keyboard::F2) {
+                            posSet[1]++;
+
+                            if(posSet[1]>cfgVal[1].size()-1){
+                                posSet[1] = 0;
+                            }else if(posSet[1]<0){
+                                posSet[1] = static_cast<int>(cfgVal[1].size())-1;
+                            }
+                            characterSize = cfgVal[1][posSet[1]];
+                            writeToCfg();
+                            cfgWritten = true;
+                        }else if (event.key.code == sf::Keyboard::F3) {
+                            posSet[2]++;
+
+                            if(posSet[2]>cfgVal[2].size()-1){
+                                posSet[2] = 0;
+                            }else if(posSet[2]<0){
+                                posSet[2] = static_cast<int>(cfgVal[2].size())-1;
+                            }
+                            speedMultiplier = cfgVal[2][posSet[2]];
+                            writeToCfg();
+                            cfgWritten = true;
+                        }else if (event.key.code == sf::Keyboard::F5) {
+                            posSet[4]++;
+
+                            if(posSet[4]>cfgVal[4].size()-1){
+                                posSet[4] = 0;
+                            }else if(posSet[4]<0){
+                                posSet[4] = static_cast<int>(cfgVal[4].size())-1;
+                            }
+
+                            if(posSet[4]==3){
+                                if(posSet[1]>3){
+                                    posSet[1] = 3;
+                                    characterSize = cfgVal[1][posSet[1]];
+                                }
+                            }
+
+                            if (cfgVal[4][posSet[4]] != wx) {
+                                wx = cfgVal[4][posSet[4]];
+                                wy = cfgVal[5][posSet[4]];
+
+                                if(cfgVal[4][posSet[4]] == 1920){
+                                    window.create(sf::VideoMode(wx, wy), "MonkeyType", sf::Style::Fullscreen);
+                                }else{
+                                    window.create(sf::VideoMode(wx, wy), "MonkeyType");
+                                }
+
+                                window.setFramerateLimit(240);
+                            }
+                            writeToCfg();
+                            cfgWritten = true;
                         }
                     }
                 }
