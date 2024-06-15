@@ -241,7 +241,7 @@ void toLeaderboard(leaderboardEntry const& l, std::vector<leaderboardEntry> cons
     if(!lbv.empty()){
         lb << '\n';
     }
-    lb << fmt::format("{},{},{}",l.username,(l.wordsTyped*speedMultiplier),l.time);
+    lb << fmt::format("{},{},{}",l.username,l.wordsTyped,l.time);
 }
 
 void writeToCfg(){
