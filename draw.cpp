@@ -266,7 +266,7 @@ sf::Text getUIToolTip(std::string const& text, std::string const& key, sf::Font 
     return keyG;
 }
 
-void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error, std::vector<int> const& val){
+void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error, std::vector<int> const& val){
     auto uiBase = sf::RectangleShape(sf::Vector2f(wx,240));
     uiBase.setPosition(0,wy-240);
     uiBase.setFillColor(selectColor);

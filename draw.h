@@ -27,4 +27,4 @@ std::pair<sf::Text, sf::Text> drawEnterUsername(sf::RenderWindow &window, sf::Fo
 
 int drawPlayfield(sf::RenderWindow &window, std::deque<sf::Text> & words, float const &speed, sf::Font const& font, std::string wordTyp);
 
-void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error, std::vector<int> const& val);
+void drawGameUI(sf::RenderWindow &window, sf::Font &font, std::string &wordTyp, long long & timeElapsed, int & wordsLost, int & wordsTyped, bool const& error, std::vector<int> const& val);

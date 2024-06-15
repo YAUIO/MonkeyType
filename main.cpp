@@ -54,7 +54,7 @@ auto main() -> int {
     bool rPress = false;
     bool lPress = false;
     bool cfgWritten = true;
-    long timeElapsed = 0;
+    long long timeElapsed = 0;
     long long lastWordSpawned = 0;
     long long timeNow = 0;
     int wordsLost = 0;
@@ -242,7 +242,7 @@ auto main() -> int {
 
                 timeNow = std::chrono::steady_clock::now().time_since_epoch().count();
 
-                timeElapsed = static_cast<long>(timeNow - start.time_since_epoch().count()); //time since start
+                timeElapsed = timeNow - start.time_since_epoch().count(); //time since start
                 timeElapsed = timeElapsed / convToSec; //conversion to seconds
                 if ((timeNow - lastWordSpawned) / convToMsec > (1000/speedMultiplier)*4) {
                     interpWord(generateWord(csv), font, gameWords);
@@ -417,7 +417,7 @@ auto main() -> int {
                             speedMultiplier = cfgVal[2][posSet[2]];
                             writeToCfg();
                             cfgWritten = true;
-                        }else if (event.key.code == sf::Keyboard::F5) {
+                        }else if (event.key.code == sf::Keyboard::F4) {
                             posSet[4]++;
 
                             if(posSet[4]>cfgVal[4].size()-1){
